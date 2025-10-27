@@ -23,9 +23,6 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           flutter-version: "3.32.7" # ou a versão que você está usando
-      # 📁 Mudar para o diretório do app Flutter
-      - name: Entrar no diretório do app
-        run: cd agendadoradmin    
       # 🧱 Instalar dependências
       - name: Instalar dependências
         working-directory: agendadoradmin
@@ -61,6 +58,7 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_WHITE_RIVER_0E20DFC0F }}
           action: "close"
+
 
 
 
