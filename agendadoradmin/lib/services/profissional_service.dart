@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:agendadoradmin/models/erro_requisicao.dart';
-import 'package:agendadoradmin/models/Profissional.dart';
+import 'package:agendadoradmin/models/profissional.dart';
 import 'package:agendadoradmin/services/api_service.dart';
 import 'package:agendadoradmin/singleton/empresa_singleton.dart';
 import 'package:agendadoradmin/singleton/usuario_singleton.dart';

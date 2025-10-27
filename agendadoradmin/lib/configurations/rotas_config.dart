@@ -1,4 +1,4 @@
-import 'package:agendadoradmin/models/Profissional.dart';
+import 'package:agendadoradmin/models/profissional.dart';
 import 'package:agendadoradmin/screens/cadastros_profissional_screen.dart';
 import 'package:agendadoradmin/screens/nao_encontrado_screen.dart';
 import 'package:agendadoradmin/screens/principal_screen.dart';

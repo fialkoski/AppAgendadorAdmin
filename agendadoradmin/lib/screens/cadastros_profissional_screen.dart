@@ -1,5 +1,5 @@
 import 'dart:typed_data';
-import 'package:agendadoradmin/models/Profissional.dart';
+import 'package:agendadoradmin/models/profissional.dart';
 import 'package:agendadoradmin/services/empresa_service.dart';
 import 'package:agendadoradmin/services/profissional_service.dart';
 import 'package:agendadoradmin/services/api_service.dart';

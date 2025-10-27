@@ -149,7 +149,7 @@ class _ListaProfissionalScreenState extends State<ListaProfissionalScreen> {
   }
 }*/
 
-import 'package:agendadoradmin/models/Profissional.dart';
+import 'package:agendadoradmin/models/profissional.dart';
 import 'package:agendadoradmin/services/profissional_service.dart';
 import 'package:agendadoradmin/tools/util_texto.dart';
 import 'package:agendadoradmin/widgets/app_bar_padrao.dart';
