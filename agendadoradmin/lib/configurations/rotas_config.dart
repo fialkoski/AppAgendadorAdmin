@@ -52,14 +52,17 @@ class RotasConfig {
           ),
           GoRoute(
             path: '/empresas',
-            builder: (context, state) => const ListaEmpresasScreen(),
-          ),
-          GoRoute(
-            path: '/empresas/cadastro',
-            builder: (context, state) {
-              final empresa = state.extra as Empresa?;
-              return CadastroEmpresaScreen(empresaEdicao: empresa);
-            },
+            pageBuilder: (context, state) =>
+                NoTransitionPage(child: ListaEmpresasScreen()),
+            routes: [
+              GoRoute(
+                path: 'cadastro',
+                pageBuilder: (context, state) {
+                  final empresa = state.extra as Empresa?;
+                  return NoTransitionPage(child: CadastroEmpresaScreen(empresaEdicao: empresa));
+                },
+              ),
+            ],
           ),
           GoRoute(
             path: '/profissionais/cadastro',

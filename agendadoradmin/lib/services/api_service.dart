@@ -7,8 +7,8 @@ import 'package:http/http.dart';
 
 class ApiService {
   static String URLBASE =
-          //'https://agendador-fzghg9hrh9bgb9dm.canadacentral-01.azurewebsites.net';
-      'http://localhost:8080';
+         'https://agendador-fzghg9hrh9bgb9dm.canadacentral-01.azurewebsites.net';
+      //'http://localhost:8080';
   static String URLBASEIMG = 'https://valdecverymoney.online/barbearia/';
 
   static void Function()? onRedirecionamento;
