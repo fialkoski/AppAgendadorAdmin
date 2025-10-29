@@ -17,13 +17,32 @@ class ListaEmpresasScreen extends StatefulWidget {
 class _ListaEmpresasScreenState extends State<ListaEmpresasScreen> {
   final EmpresaService empresaService = EmpresaService();
 
+  late Future<List<Empresa>> _empresasFuture;
+  ThemeData? _theme;
+  late ColorScheme _colorScheme;
+  late TextTheme _textTheme;
+
+  @override
+  void initState() {
+    super.initState();
+    _empresasFuture = empresaService.buscarEmpresaPorUsuario();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _theme = Theme.of(context); 
+    _colorScheme = _theme!.colorScheme;
+    _textTheme = _theme!.textTheme;
+  }
+
+
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
+    if (!mounted) return const SizedBox.shrink();
 
     return Scaffold(
-      backgroundColor: colorScheme.surface,
+      backgroundColor: _colorScheme.surface,
       appBar: AppBarPadrao(
           icon: null,
           title: 'Empresas',
@@ -35,7 +54,7 @@ class _ListaEmpresasScreenState extends State<ListaEmpresasScreen> {
       body: TelaListagemPadrao(
         titulo: 'Lista de Empresas',
         dataTable: FutureBuilder<List<Empresa>>(
-          future: empresaService.buscarEmpresaPorUsuario(),
+          future: _empresasFuture,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(
@@ -46,7 +65,7 @@ class _ListaEmpresasScreenState extends State<ListaEmpresasScreen> {
               return Center(
                 child: Text(
                   'Erro ao carregar empresas: ${snapshot.error}',
-                  style: TextStyle(color: colorScheme.error),
+                  style: TextStyle(color: _colorScheme.error),
                 ),
               );
             }
@@ -55,11 +74,11 @@ class _ListaEmpresasScreenState extends State<ListaEmpresasScreen> {
               return Center(
                 child: Text(
                   'Nenhuma empresa encontrada.',
-                  style: TextStyle(color: colorScheme.onSurface),
+                  style: TextStyle(color: _colorScheme.onSurface),
                 ),
               );
             }
-            return _gridDados(empresas, colorScheme, textTheme);
+            return _gridDados(empresas);
           },
         ),
       ),
@@ -67,7 +86,7 @@ class _ListaEmpresasScreenState extends State<ListaEmpresasScreen> {
   }
 
   DataTable2 _gridDados(
-      List<Empresa> empresas, ColorScheme colorScheme, textTheme) {
+      List<Empresa> empresas) {
     return DataTable2(
       columnSpacing: 12,
       horizontalMargin: 12,
@@ -76,36 +95,36 @@ class _ListaEmpresasScreenState extends State<ListaEmpresasScreen> {
         DataColumn2(
             label: Text(
               'CNPJ / CPF',
-              style: textTheme.titleMedium?.copyWith(
+              style: _textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
-                color: colorScheme.onSurface,
+                color: _colorScheme.onSurface,
               ),
             ),
             size: ColumnSize.S),
         DataColumn2(
             label: Text(
               'Nome',
-              style: textTheme.titleMedium?.copyWith(
+              style: _textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
-                color: colorScheme.onSurface,
+                color: _colorScheme.onSurface,
               ),
             ),
             size: ColumnSize.L),
         DataColumn2(
             label: Text(
               'Endereço',
-              style: textTheme.titleMedium?.copyWith(
+              style: _textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
-                color: colorScheme.onSurface,
+                color: _colorScheme.onSurface,
               ),
             ),
             size: ColumnSize.L),
         DataColumn2(
             label: Text(
               'WhatsApp',
-              style: textTheme.titleMedium?.copyWith(
+              style: _textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
-                color: colorScheme.onSurface,
+                color: _colorScheme.onSurface,
               ),
             ),
             size: ColumnSize.S),
@@ -114,9 +133,9 @@ class _ListaEmpresasScreenState extends State<ListaEmpresasScreen> {
               alignment: Alignment.centerRight,
               child: Text(
                 'Ações',
-                style: textTheme.titleMedium?.copyWith(
+                style: _textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: colorScheme.onSurface,
+                  color: _colorScheme.onSurface,
                 ),
                 textAlign: TextAlign.right,
               ),
@@ -136,11 +155,11 @@ class _ListaEmpresasScreenState extends State<ListaEmpresasScreen> {
                 child: PopupMenuButton<String>(
                   icon: Icon(
                     Icons.more_vert,
-                    color: colorScheme.onSurface,
+                    color: _colorScheme.onSurface,
                   ),
                   onSelected: (value) {
                     if (value == 'editar') {
-                      // TODO: editar empresa
+                      context.go('/empresas/cadastro', extra: empresa) ;
                     } else if (value == 'excluir') {
                       // TODO: excluir empresa
                     }
@@ -150,7 +169,7 @@ class _ListaEmpresasScreenState extends State<ListaEmpresasScreen> {
                       value: 'editar',
                       child: Row(
                         children: [
-                          Icon(Icons.edit, color: colorScheme.primary),
+                          Icon(Icons.edit, color: _colorScheme.primary),
                           SizedBox(width: 8),
                           Text('Editar'),
                         ],
@@ -160,7 +179,7 @@ class _ListaEmpresasScreenState extends State<ListaEmpresasScreen> {
                       value: 'excluir',
                       child: Row(
                         children: [
-                          Icon(Icons.delete_outline, color: colorScheme.error),
+                          Icon(Icons.delete_outline, color: _colorScheme.error),
                           SizedBox(width: 8),
                           Text('Excluir'),
                         ],

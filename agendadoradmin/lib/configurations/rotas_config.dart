@@ -1,3 +1,4 @@
+import 'package:agendadoradmin/models/empresa.dart';
 import 'package:agendadoradmin/models/profissional.dart';
 import 'package:agendadoradmin/screens/cadastros_profissional_screen.dart';
 import 'package:agendadoradmin/screens/nao_encontrado_screen.dart';
@@ -14,17 +15,17 @@ import 'package:agendadoradmin/singleton/empresa_singleton.dart';
 import 'package:agendadoradmin/singleton/usuario_singleton.dart';
 import 'package:go_router/go_router.dart';
 
-
 class RotasConfig {
   static final GoRouter _router = GoRouter(
     initialLocation: '/',
     redirect: (context, state) async {
       final tokenValido = UsuarioSingleton.instance.tokenValido();
-      final rotaSemToken = state.uri.toString() == '/login' ||
+      final rotaSemToken =
+          state.uri.toString() == '/login' ||
           state.uri.toString() == '/cadastro' ||
           state.uri.toString() == '/';
       if (!tokenValido && !rotaSemToken) return '/login';
-      return null; 
+      return null;
     },
     routes: [
       GoRoute(
@@ -35,10 +36,7 @@ class RotasConfig {
         path: '/cadastro',
         builder: (context, state) => const CadastroUsuarioScreen(),
       ),
-      GoRoute(
-        path: '/login',
-        builder: (context, state) => const LoginScreen(),
-      ),
+      GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
       ShellRoute(
         builder: (context, state, child) => PrincipalScreen(child: child),
         routes: [
@@ -58,7 +56,10 @@ class RotasConfig {
           ),
           GoRoute(
             path: '/empresas/cadastro',
-            builder: (context, state) => const CadastroEmpresaScreen(),
+            builder: (context, state) {
+              final empresa = state.extra as Empresa?;
+              return CadastroEmpresaScreen(empresaEdicao: empresa);
+            },
           ),
           GoRoute(
             path: '/profissionais/cadastro',

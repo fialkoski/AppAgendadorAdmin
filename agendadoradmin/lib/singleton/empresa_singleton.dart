@@ -8,10 +8,8 @@ class EmpresaSingleton {
 
   static EmpresaSingleton get instance => _instance;
 
-
   Empresa? _empresa;
   int? _selectedEmpresaId;
-
 
   Empresa? get empresa => _empresa;
   int? get selectedEmpresaId => _selectedEmpresaId;
@@ -20,7 +18,6 @@ class EmpresaSingleton {
   Future<void> setEmpresa(Empresa empresa) async {
     _empresa = empresa;
     _selectedEmpresaId = _empresa!.id;
-
   }
 
   /// Define o usuário atual e salva localmente

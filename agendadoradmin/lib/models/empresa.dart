@@ -9,6 +9,7 @@ class Empresa {
   final int ativo;
   final String whatsApp;
   final EmpresaEndereco endereco;
+  final int idUsuario;
 
   // Construtor da classe
   Empresa({
@@ -19,6 +20,7 @@ class Empresa {
     this.ativo = 1,
     required this.whatsApp,
     required this.endereco,
+    required this.idUsuario
   });
 
   factory Empresa.fromJson(Map<String, dynamic> json) {
@@ -30,6 +32,7 @@ class Empresa {
       ativo: json['ativo'] ?? 1,
       whatsApp: json['whatsApp'] ?? '',
       endereco: EmpresaEndereco.fromJson(json['endereco']),
+      idUsuario: json['idUsuario'] ?? 0,
     );
   }
 
@@ -42,6 +45,7 @@ class Empresa {
       'ativo': ativo,
       'whatsApp': whatsApp,
       'endereco': endereco.toJson(),
+      'idUsuario': idUsuario
     };
   }
 }

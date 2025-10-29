@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 
 import 'package:agendadoradmin/models/empresa.dart';
@@ -11,30 +10,31 @@ import 'package:agendadoradmin/singleton/usuario_singleton.dart';
 class EmpresaService {
   Future<Empresa> buscarEmpresaPorCpfcnpj(String cpfcnpj) async {
     return ApiService.buscar<Empresa>(
-        '/api/empresas/cpfcnpj/$cpfcnpj', Empresa.fromJson);
+      '/api/empresas/cpfcnpj/$cpfcnpj',
+      Empresa.fromJson,
+    );
   }
 
   Future<List<Empresa>> buscarEmpresaPorUsuario() async {
     return ApiService.buscarLista<Empresa>(
-        '/api/empresas/usuario/${UsuarioSingleton.instance.usuario?.id}', Empresa.fromJson);
+      '/api/empresas/usuario/${UsuarioSingleton.instance.usuario?.id}',
+      Empresa.fromJson,
+    );
   }
 
   Future<String> salvarEmpresa(Empresa empresa) async {
-    final response = await ApiService.post(
-        '/api/empresas', empresa.toJson());
+    final response = await ApiService.post('/api/empresas', empresa.toJson());
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       final Map<String, dynamic> data = json.decode(response.body);
       Empresa novaEmpresa = Empresa.fromJson(data);
-      ListaEmpresaSingleton.instance.addEmpresa(empresa);
+      ListaEmpresaSingleton.instance.addEmpresa(novaEmpresa);
       EmpresaSingleton.instance.setEmpresa(novaEmpresa);
-      
       return 'Empresa cadastrada!';
     } else {
       final Map<String, dynamic> data = jsonDecode(response.body);
       ErroRequisicao erro = ErroRequisicao.fromJson(data);
-      return erro.mensagemFormatada();
+      throw Exception(erro.mensagemFormatada().replaceFirst('Exception: ', ''));
     }
   }
-
 }

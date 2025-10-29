@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class ButtonBarPadrao extends StatelessWidget {
+class ButtonBarPadrao extends StatefulWidget {
   final VoidCallback onDescartar;
   final VoidCallback onSalvar;
   final bool isSaving;
@@ -13,9 +13,25 @@ class ButtonBarPadrao extends StatelessWidget {
   });
 
   @override
+  State<ButtonBarPadrao> createState() => _ButtonBarPadraoState();
+}
+
+class _ButtonBarPadraoState extends State<ButtonBarPadrao> {
+  ThemeData? _theme;
+  late ColorScheme _colorScheme;
+  late TextTheme _textTheme;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _theme = Theme.of(context);
+    _colorScheme = _theme!.colorScheme;
+    _textTheme = _theme!.textTheme;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
+    if (!mounted) return const SizedBox.shrink();
 
     return Padding(
       padding: const EdgeInsets.only(top: 32, right: 32, bottom: 32),
@@ -24,14 +40,14 @@ class ButtonBarPadrao extends StatelessWidget {
         children: [
           // --- Botão DESCARTAR ---
           TextButton(
-            onPressed: isSaving ? null : onDescartar,
+            onPressed: widget.isSaving ? null : widget.onDescartar,
             style: TextButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 22),
-              foregroundColor: colorScheme.onSurface.withOpacity(0.8),
+              foregroundColor: _colorScheme.onSurface.withOpacity(0.8),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
-              textStyle: textTheme.labelLarge?.copyWith(
+              textStyle: _textTheme.labelLarge?.copyWith(
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -41,29 +57,26 @@ class ButtonBarPadrao extends StatelessWidget {
           const SizedBox(width: 24),
 
           ElevatedButton(
-            onPressed: isSaving ? null : onSalvar,
+            onPressed: widget.isSaving ? null : widget.onSalvar,
             style: ElevatedButton.styleFrom(
-              backgroundColor: colorScheme.primary,
-              foregroundColor: colorScheme.onPrimary,
+              backgroundColor: _colorScheme.primary,
+              foregroundColor: _colorScheme.onPrimary,
               padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 22),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
               elevation: 3,
             ),
-            child: isSaving
+            child: widget.isSaving
                 ? SizedBox(
                     height: 18,
                     width: 18,
                     child: CircularProgressIndicator(
                       strokeWidth: 2.4,
-                      color: colorScheme.onPrimary,
+                      color: _colorScheme.onPrimary,
                     ),
                   )
-                : const Text(
-                    'Salvar',
-                    style: TextStyle(fontSize: 16,),
-                  ),
+                : const Text('Salvar', style: TextStyle(fontSize: 16)),
           ),
         ],
       ),
