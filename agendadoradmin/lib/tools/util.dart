@@ -1,36 +1,9 @@
-
 import 'package:http/http.dart' as http;
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Util {
-  static void showMensagem(BuildContext context, String mensagem) {
-    final snackBar = SnackBar(
-      content: Text(mensagem),
-      backgroundColor: Colors.green,
-      behavior: SnackBarBehavior.floating,
-      duration: const Duration(seconds: 3),
-    );
-
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-  }
-
-  static void ShowToast(String msg, Color colorFunfo) {
-    Fluttertoast.showToast(
-      msg: msg,
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.CENTER,
-      backgroundColor: colorFunfo,
-      textColor: Colors.black87,
-      fontSize: 16.0,
-      timeInSecForIosWeb: 2,
-      webPosition: "center",
-      webBgColor: "linear-gradient(to right, #f5dc84, #e6b405)",
-    );
-  }
 
   static String getWeekdayName(DateTime date) {
     // Lista com os dias da semana em português
@@ -81,11 +54,12 @@ class Util {
         return data;
       }
     }
-
   }
-  static Color? statusAgendamento(String data){
+
+  static Color? statusAgendamento(String data) {
     List<String> PartesData = data.split('/');
-    String verificaAgenda =  "${PartesData[2]}-${PartesData[1]}-${PartesData[0]}";
+    String verificaAgenda =
+        "${PartesData[2]}-${PartesData[1]}-${PartesData[0]}";
 
     DateTime hoje = DateTime.now();
     // Data específica
@@ -104,14 +78,15 @@ class Util {
       print("O dia específico já passou.");
       return Colors.deepOrangeAccent[200];
     }
-
   }
+
   // Função para converter o formato "dd-MM-yyyy" para o formato "yyyy-MM-dd"
   static String dataFormatadaVisual(String date) {
-
-    List<String> PartesData = Util.formatarData(date, apenasDataFormatada:  true).split('-');
+    List<String> PartesData = Util.formatarData(
+      date,
+      apenasDataFormatada: true,
+    ).split('-');
     return "${PartesData[2]}/${PartesData[1]}/${PartesData[0]}";
-
   }
 
   static Future<bool> checkImageAccessibility(String url) async {
@@ -124,6 +99,4 @@ class Util {
       return false;
     }
   }
-
-
 }

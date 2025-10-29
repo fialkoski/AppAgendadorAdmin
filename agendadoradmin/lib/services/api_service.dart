@@ -7,8 +7,8 @@ import 'package:http/http.dart';
 
 class ApiService {
   static String URLBASE =
-         'https://agendador-fzghg9hrh9bgb9dm.canadacentral-01.azurewebsites.net';
-      //'http://localhost:8080';
+         //'https://agendador-fzghg9hrh9bgb9dm.canadacentral-01.azurewebsites.net';
+      'http://localhost:8080';
   static String URLBASEIMG = 'https://valdecverymoney.online/barbearia/';
 
   static void Function()? onRedirecionamento;
@@ -99,9 +99,13 @@ class ApiService {
   static Future<Response> put(
       String url, Map<String, dynamic> jsonDados) async {
     try {
+      final meuToken = await buscarToken();
       final response = await http.put(
         Uri.parse('$URLBASE$url'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $meuToken',
+        },
         body: json.encode(jsonDados),
       );
       print(

@@ -13,7 +13,7 @@ Future<void> main() async {
   ApiService.onRedirecionamento = () {
     Future.microtask(() => RotasConfig.getRouter().go('/login'));
   };
-  //teste integração azure
+  
   runApp(
     MultiProvider(
       providers: [

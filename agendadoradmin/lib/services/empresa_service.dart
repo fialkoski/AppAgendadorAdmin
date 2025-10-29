@@ -37,4 +37,20 @@ class EmpresaService {
       throw Exception(erro.mensagemFormatada().replaceFirst('Exception: ', ''));
     }
   }
+
+  Future<String> atualizarEmpresa(Empresa empresa) async {
+    final response = await ApiService.put('/api/empresas/${empresa.id}', empresa.toJson());
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      Empresa novaEmpresa = Empresa.fromJson(json.decode(response.body));
+      ListaEmpresaSingleton.instance.updateEmpresa(novaEmpresa);
+      if (novaEmpresa.id == EmpresaSingleton.instance.empresa?.id) {
+        EmpresaSingleton.instance.setEmpresa(novaEmpresa);
+      }
+      return 'Empresa atualizada!';
+    } else {
+      ErroRequisicao erro = ErroRequisicao.fromJson(jsonDecode(response.body));
+      throw Exception(erro.mensagemFormatada().replaceFirst('Exception: ', ''));
+    }
+  }
 }

@@ -25,6 +25,16 @@ class ListaEmpresaSingleton {
     }
   }
 
+  void updateEmpresa(Empresa empresaAtualizada) {
+    _empresas ??= List.empty();
+    final index = _empresas!.indexWhere((e) => e.id == empresaAtualizada.id);
+    if (index != -1) {
+      _empresas![index] = empresaAtualizada;
+    } else {
+      addEmpresa(empresaAtualizada);
+    }
+  }
+
   /// Limpa os dados (logout)
   Future<void> clear() async {
     _empresas = null;

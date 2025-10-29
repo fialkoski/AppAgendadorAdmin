@@ -160,8 +160,6 @@ class _ListaEmpresasScreenState extends State<ListaEmpresasScreen> {
                   onSelected: (value) {
                     if (value == 'editar') {
                       context.go('/empresas/cadastro', extra: empresa) ;
-                    } else if (value == 'excluir') {
-                      // TODO: excluir empresa
                     }
                   },
                   itemBuilder: (context) => [
@@ -172,16 +170,6 @@ class _ListaEmpresasScreenState extends State<ListaEmpresasScreen> {
                           Icon(Icons.edit, color: _colorScheme.primary),
                           SizedBox(width: 8),
                           Text('Editar'),
-                        ],
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: 'excluir',
-                      child: Row(
-                        children: [
-                          Icon(Icons.delete_outline, color: _colorScheme.error),
-                          SizedBox(width: 8),
-                          Text('Excluir'),
                         ],
                       ),
                     ),

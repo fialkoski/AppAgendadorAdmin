@@ -2,6 +2,8 @@ import 'package:agendadoradmin/models/empresa.dart';
 import 'package:agendadoradmin/providers/empresa_provider.dart';
 import 'package:agendadoradmin/services/empresa_service.dart';
 import 'package:agendadoradmin/singleton/usuario_singleton.dart';
+import 'package:agendadoradmin/tools/util.dart';
+import 'package:agendadoradmin/tools/util_mensagem.dart';
 import 'package:agendadoradmin/tools/util_texto.dart';
 import 'package:agendadoradmin/widgets/app_bar_padrao.dart';
 import 'package:agendadoradmin/widgets/button_bar_padrao.dart';
@@ -70,49 +72,55 @@ class _CadastroEmpresaScreenState extends State<CadastroEmpresaScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     if (!mounted) return;
-    setState(() => _isLoading = true);
 
-    final empresaJson = {
-      "nome": _nomeController.text,
-      "cpfCnpj": _cpfCnpjController.text,
-      "foto": null,
-      "ativo": _ativo ? 1 : 0,
-      "whatsApp": UtilTexto.apenasNumeros(_whatsAppController.text),
-      "idUsuario": UsuarioSingleton.instance.usuario!.id,
-      "endereco": {
-        "rua": _ruaController.text,
-        "numero": _numeroController.text,
-        "bairro": _bairroController.text,
-        "cidade": _cidadeController.text,
-        "cep": _cepController.text,
-      },
-    };
+    try {
+      setState(() => _isLoading = true);
 
-    Empresa empresa = Empresa.fromJson(empresaJson);
-    await empresaService
-        .salvarEmpresa(empresa)
-        .then((msg) {
-          if (!mounted) return;
-          final provider = context.read<EmpresaProvider>();
-          provider.adicionarEmpresa();
+      final empresaJson = {
+        "id": widget.empresaEdicao?.id ?? 0,
+        "nome": _nomeController.text,
+        "cpfCnpj": _cpfCnpjController.text,
+        "foto": null,
+        "ativo": _ativo ? 1 : 0,
+        "whatsApp": UtilTexto.apenasNumeros(_whatsAppController.text),
+        "idUsuario": UsuarioSingleton.instance.usuario!.id,
+        "endereco": {
+          "rua": _ruaController.text,
+          "numero": _numeroController.text,
+          "bairro": _bairroController.text,
+          "cidade": _cidadeController.text,
+          "cep": _cepController.text,
+        },
+      };
 
-          setState(() => _isLoading = false);
+      Empresa empresa = Empresa.fromJson(empresaJson);
 
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('Empresa cadastrada!')));
-          context.go('/profissionais');
-        })
-        .catchError((e) {
-          if (!mounted) return;
-          setState(() => _isLoading = false);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Falha ao cadastrar empresa: $e'),
-              duration: const Duration(seconds: 10),
-            ),
-          );
-        });
+      if (widget.empresaEdicao?.id == 0) {
+        await empresaService.salvarEmpresa(empresa);
+
+        if (!mounted) return;
+        UtilMensagem.showSucesso(context, "Empresa cadastrada com sucesso!");
+
+        final provider = context.read<EmpresaProvider>();
+        provider.adicionarEmpresa();
+
+        setState(() => _isLoading = false);
+
+        if (mounted) context.go('/profissionais');
+      } else {
+        await empresaService.atualizarEmpresa(empresa);
+
+        if (!mounted) return;
+        UtilMensagem.showSucesso(context, "Empresa atualizada com sucesso!");
+
+        setState(() => _isLoading = false);
+      }
+
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      UtilMensagem.showErro(context, "Falha ao atualizar empresa: $e");
+    }
   }
 
   @override
@@ -153,7 +161,7 @@ class _CadastroEmpresaScreenState extends State<CadastroEmpresaScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            'Empresa Ativa',
+                            (_ativo)?'Empresa Ativa': 'Empresa Desativada' ,
                             style: _textTheme.bodyMedium?.copyWith(
                               color: _colorScheme.onSurface,
                             ),
