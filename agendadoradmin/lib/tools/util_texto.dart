@@ -60,4 +60,12 @@ class UtilTexto {
 
     return '($ddd) $parte1-$parte2';
   }
+
+  static String formatarDecimalParaMoeda(double preco) {
+    return 'R\$ ${preco.toStringAsFixed(2).replaceAll('.', ',')}';
+  }
+
+  static double textoToDouble(String texto) {
+    return double.tryParse(texto.replaceAll('R\$', '').replaceAll('.', '').replaceAll(',', '.').trim()) ?? 0;
+  }
 }

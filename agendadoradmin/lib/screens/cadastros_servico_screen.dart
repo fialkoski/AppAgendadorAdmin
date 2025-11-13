@@ -1,37 +1,31 @@
-import 'package:agendadoradmin/models/profissional.dart';
-import 'package:agendadoradmin/services/profissional_service.dart';
+import 'package:agendadoradmin/models/servico.dart';
+import 'package:agendadoradmin/services/servico_service.dart';
 import 'package:agendadoradmin/singleton/empresa_singleton.dart';
 import 'package:agendadoradmin/tools/util_mensagem.dart';
+import 'package:agendadoradmin/tools/util_texto.dart';
 import 'package:agendadoradmin/widgets/app_bar_padrao.dart';
 import 'package:agendadoradmin/widgets/button_bar_padrao.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'package:cpf_cnpj_validator/cpf_validator.dart';
-import 'package:cpf_cnpj_validator/cnpj_validator.dart';
 
-class CadastroProfissionalScreen extends StatefulWidget {
+class CadastroServicoScreen extends StatefulWidget {
   final VoidCallback? onPressed;
-  final Profissional? profissionalEdicao;
+  final Servico? servicoEdicao;
 
-  const CadastroProfissionalScreen({
-    super.key,
-    this.onPressed,
-    this.profissionalEdicao,
-  });
+  const CadastroServicoScreen({super.key, this.onPressed, this.servicoEdicao});
 
   @override
-  State<CadastroProfissionalScreen> createState() =>
-      _CadastroProfissionalScreenState();
+  State<CadastroServicoScreen> createState() => _CadastroServicoScreenState();
 }
 
-class _CadastroProfissionalScreenState
-    extends State<CadastroProfissionalScreen> {
-  final ProfissionalService profissionalService = ProfissionalService();
+class _CadastroServicoScreenState extends State<CadastroServicoScreen> {
+  final ServicoService servicoService = ServicoService();
   final _formKey = GlobalKey<FormState>();
 
-  final _nomeController = TextEditingController();
-  final _emailController = TextEditingController();
+  final _descricaoController = TextEditingController();
+  final _tempoController = TextEditingController();
+  final _precoController = TextEditingController();
 
   bool _ativo = true;
   bool _isLoading = false;
@@ -51,14 +45,15 @@ class _CadastroProfissionalScreenState
   @override
   void initState() {
     super.initState();
-    if (widget.profissionalEdicao != null) {
-      _nomeController.text = widget.profissionalEdicao!.nome;
-      _emailController.text = widget.profissionalEdicao!.email;
-      _ativo = widget.profissionalEdicao!.ativo == 1;      
+    if (widget.servicoEdicao != null) {
+      _descricaoController.text = widget.servicoEdicao!.descricao;
+      _tempoController.text = widget.servicoEdicao!.tempo;
+      _precoController.text = widget.servicoEdicao!.preco.toString();
+      _ativo = widget.servicoEdicao!.ativo == 1;
     }
   }
 
-  void _salvarProfissional() async {
+  void _salvarServicos() async {
     if (!_formKey.currentState!.validate()) return;
 
     if (!mounted) return;
@@ -66,36 +61,38 @@ class _CadastroProfissionalScreenState
     try {
       setState(() => _isLoading = true);
 
-      Profissional prof = Profissional(
-        id: widget.profissionalEdicao?.id ?? 0,
+      Servico servicoSalvar = Servico(
+        id: widget.servicoEdicao?.id ?? 0,
         idEmpresa: EmpresaSingleton.instance.empresa!.id,
-        nome: _nomeController.text,
-        email: _emailController.text.toLowerCase(),
-       // foto: _fotoUrl ?? widget.profissional?.foto ?? '',
+        descricao: _descricaoController.text,
+        tempo: _tempoController.text,
+        preco: _precoController.text.isNotEmpty
+            ? UtilTexto.textoToDouble(_precoController.text)
+            : 0,
         ativo: _ativo ? 1 : 0,
       );
 
-      if ((widget.profissionalEdicao?.id ?? 0) == 0) {
-        await profissionalService.salvarProfissional(prof);
+      if ((widget.servicoEdicao?.id ?? 0) == 0) {
+        await servicoService.salvarServico(servicoSalvar);
 
         if (!mounted) return;
-        UtilMensagem.showSucesso(context, "Profissional cadastrado com sucesso!");
+        UtilMensagem.showSucesso(context, "Serviço cadastrado com sucesso!");
 
         setState(() => _isLoading = false);
 
-        if (mounted) context.go('/profissionais');
+        if (mounted) context.go('/servicos');
       } else {
-        await profissionalService.atualizarProfissional(prof);
+        await servicoService.atualizarServico(servicoSalvar);
 
         if (!mounted) return;
-        UtilMensagem.showSucesso(context, "Profissional atualizado com sucesso!");
+        UtilMensagem.showSucesso(context, "Serviço atualizado com sucesso!");
 
         setState(() => _isLoading = false);
       }
     } catch (e) {
       if (!mounted) return;
       setState(() => _isLoading = false);
-      UtilMensagem.showErro(context, "Falha ao atualizar profissional: $e");
+      UtilMensagem.showErro(context, "Falha ao atualizar serviço: $e");
     }
   }
 
@@ -107,17 +104,17 @@ class _CadastroProfissionalScreenState
       backgroundColor: _colorScheme.surfaceContainer,
       appBar: AppBarPadrao(
         icon: Icons.apartment,
-        title: 'Profissionais',
-        subtitle: 'Gerencie todas os profissionais cadastrados na plataforma.',
+        title: 'Serviços',
+        subtitle: 'Gerencie todas os serviços cadastrados na plataforma.',
         tituloBotao: '',
         onPressed: () {},
       ),
       bottomNavigationBar: SafeArea(
         child: ButtonBarPadrao(
           onDescartar: () {
-            context.go('/profissionais');
+            context.go('/servicos');
           },
-          onSalvar: _salvarProfissional,
+          onSalvar: _salvarServicos,
           isSaving: _isLoading,
         ),
       ),
@@ -137,7 +134,7 @@ class _CadastroProfissionalScreenState
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            (_ativo) ? 'Profissional Ativo' : 'Profissional Desativado',
+                            (_ativo) ? 'Serviço Ativo' : 'Serviço Desativado',
                             style: _textTheme.bodyMedium?.copyWith(
                               color: _colorScheme.onSurface,
                             ),
@@ -153,25 +150,40 @@ class _CadastroProfissionalScreenState
                     ),
                     const SizedBox(height: 16),
                     _buildTextField(
-                      controller: _nomeController,
-                      label: "Nome do Profissional",
+                      controller: _descricaoController,
+                      label: "Descrição do Serviço",
                       icon: Icons.business,
                       colorScheme: _colorScheme,
                       validador: (v) => v == null || v.isEmpty || v.length < 3
-                          ? 'Preencha o campo "Nome do Profissional"'
+                          ? 'Preencha o campo "Descrição do Serviço"'
                           : null,
                     ),
                     const SizedBox(height: 16),
-                   
+
                     _buildTextField(
-                      controller: _emailController,
-                      label: "E-mail",
+                      controller: _tempoController,
+                      label: "Tempo Estimado em minutos(ex: 40)",
                       icon: Icons.email_outlined,
-                      keyboardType: TextInputType.emailAddress,
+                      keyboardType: TextInputType.number,
                       colorScheme: _colorScheme,
                       validador: (v) {
-                        if (v == null || v.isEmpty) return 'Preencha o E-mail';
-                        if (v.contains('@') == false) return 'E-mail inválido';
+                        if (v == null || v.isEmpty) {
+                          return 'Preencha o Tempo Estimado';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    _buildTextField(
+                      controller: _precoController,
+                      label: "Preço",
+                      icon: Icons.email_outlined,
+                      keyboardType: TextInputType.number,
+                      colorScheme: _colorScheme,
+                      validador: (v) {
+                        if (v == null || v.isEmpty) {
+                          return 'Preencha o Preço';
+                        }
                         return null;
                       },
                     ),
@@ -220,30 +232,13 @@ class _CadastroProfissionalScreenState
     );
   }
 
-  String? validarCpfOuCnpj(String? v) {
-    if (v == null || v.trim().isEmpty) {
-      return 'Preencha o campo "CPF ou CNPJ"';
-    }
 
-    final valor = v.replaceAll(RegExp(r'[^0-9]'), '');
-
-    if (valor.length <= 11) {
-      if (!CPFValidator.isValid(valor)) {
-        return 'CPF inválido';
-      }
-    } else {
-      if (!CNPJValidator.isValid(valor)) {
-        return 'CNPJ inválido';
-      }
-    }
-
-    return null;
-  }
 
   @override
   void dispose() {
-    _nomeController.dispose();
-    _emailController.dispose();
+    _descricaoController.dispose();
+    _tempoController.dispose();
+    _precoController.dispose();
     super.dispose();
   }
 }

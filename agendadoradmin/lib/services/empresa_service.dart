@@ -32,8 +32,7 @@ class EmpresaService {
       EmpresaSingleton.instance.setEmpresa(novaEmpresa);
       return 'Empresa cadastrada!';
     } else {
-      final Map<String, dynamic> data = jsonDecode(response.body);
-      ErroRequisicao erro = ErroRequisicao.fromJson(data);
+      ErroRequisicao erro = ErroRequisicao.fromJson(jsonDecode(response.body));
       throw Exception(erro.mensagemFormatada().replaceFirst('Exception: ', ''));
     }
   }

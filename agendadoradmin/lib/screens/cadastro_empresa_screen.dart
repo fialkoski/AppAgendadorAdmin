@@ -95,7 +95,7 @@ class _CadastroEmpresaScreenState extends State<CadastroEmpresaScreen> {
 
       Empresa empresa = Empresa.fromJson(empresaJson);
 
-      if (widget.empresaEdicao?.id == 0) {
+      if ((widget.empresaEdicao?.id ?? 0) == 0) {
         await empresaService.salvarEmpresa(empresa);
 
         if (!mounted) return;

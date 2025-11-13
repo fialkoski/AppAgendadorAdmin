@@ -4,6 +4,7 @@ class Profissional {
   String nome;
   String? foto;
   int ativo;
+  String email;
 
   Profissional({
     this.id,
@@ -11,6 +12,7 @@ class Profissional {
     required this.nome,
     this.foto,
     this.ativo = 1,
+    this.email = '',
   });
 
   factory Profissional.fromJson(Map<String, dynamic> json) => Profissional(
@@ -19,6 +21,7 @@ class Profissional {
         nome: json['nome'],
         foto: json['foto'],
         ativo: json['ativo'],
+        email: json['email'] ?? '',
       );
 
   Map<String, dynamic> toJson() => {
@@ -27,5 +30,6 @@ class Profissional {
         'nome': nome,
         'foto': foto,
         'ativo': ativo,
+        'email': email,
       };
 }

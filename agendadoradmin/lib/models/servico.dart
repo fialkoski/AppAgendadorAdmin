@@ -4,6 +4,7 @@ class Servico {
   final String tempo;
   final double preco;
   final int idEmpresa;
+  int ativo;
 
   Servico({
     required this.id,
@@ -11,15 +12,17 @@ class Servico {
     required this.tempo,
     required this.preco,
     required this.idEmpresa,
+    this.ativo = 1,
   });
 
   factory Servico.fromJson(Map<String, dynamic> json) {
     return Servico(
-      id: json['id'] as int,
-      descricao: json['descricao'] as String,
-      tempo: json['tempo'].toString(), // Converte int para String
+      id: json['id'],
+      descricao: json['descricao'],
+      tempo: json['tempo'].toString(),
       preco: (json['preco'] as num).toDouble(),
-      idEmpresa: json['idEmpresa'] ?? 1, // Valor padrão se não estiver no JSON
+      idEmpresa: json['idEmpresa'], 
+      ativo: json['ativo'],
     );
   }
 
@@ -30,6 +33,7 @@ class Servico {
       'tempo': tempo,
       'preco': preco,
       'idEmpresa': idEmpresa,
+      'ativo': ativo,
     };
   }
 }

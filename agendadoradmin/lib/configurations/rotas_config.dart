@@ -1,6 +1,9 @@
 import 'package:agendadoradmin/models/empresa.dart';
 import 'package:agendadoradmin/models/profissional.dart';
+import 'package:agendadoradmin/models/servico.dart';
 import 'package:agendadoradmin/screens/cadastros_profissional_screen.dart';
+import 'package:agendadoradmin/screens/cadastros_servico_screen.dart';
+import 'package:agendadoradmin/screens/lista_servicos_screen.dart';
 import 'package:agendadoradmin/screens/nao_encontrado_screen.dart';
 import 'package:agendadoradmin/screens/principal_screen.dart';
 import 'package:agendadoradmin/screens/servicos_screen.dart';
@@ -68,15 +71,22 @@ class RotasConfig {
             path: '/profissionais/cadastro',
             builder: (context, state) {
               final profissional = state.extra as Profissional?;
-              return CadastroProfissionalScreen(profissional: profissional);
+              return CadastroProfissionalScreen(profissionalEdicao: profissional);
             },
           ),
           GoRoute(
             path: '/servicos',
-            builder: (context, state) {
-              int idEmpresa = EmpresaSingleton.instance.empresa!.id;
-              return ServicosScreen(empresaId: idEmpresa);
-            },
+            pageBuilder: (context, state) =>
+                NoTransitionPage(child: ListaServicosScreen()),
+            routes: [
+              GoRoute(
+                path: 'cadastro',
+                pageBuilder: (context, state) {
+                  final servico = state.extra as Servico?;
+                  return NoTransitionPage(child: CadastroServicoScreen(servicoEdicao: servico));
+                },
+              ),
+            ],
           ),
         ],
       ),

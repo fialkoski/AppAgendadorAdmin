@@ -235,7 +235,7 @@ class _ListaProfissionaisScreenState extends State<ListaProfissionaisScreen> {
             size: ColumnSize.L),
         DataColumn2(
             label: Text(
-              'WhatsApp',
+              'E-mail',
               style: textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
                 color: colorScheme.onSurface,
@@ -260,7 +260,7 @@ class _ListaProfissionaisScreenState extends State<ListaProfissionaisScreen> {
         return DataRow(
           cells: [
             DataCell(Text(profissional.nome)),
-            DataCell(Text(UtilTexto.formatarTelefone(''))),
+            DataCell(Text(profissional.email)),
             DataCell(
               Align(
                 alignment: Alignment.centerRight,
@@ -271,9 +271,7 @@ class _ListaProfissionaisScreenState extends State<ListaProfissionaisScreen> {
                   ),
                   onSelected: (value) {
                     if (value == 'editar') {
-                      // TODO: editar empresa
-                    } else if (value == 'excluir') {
-                      // TODO: excluir empresa
+                      context.go('/profissionais/cadastro', extra: profissional) ;
                     }
                   },
                   itemBuilder: (context) => [
@@ -284,16 +282,6 @@ class _ListaProfissionaisScreenState extends State<ListaProfissionaisScreen> {
                           Icon(Icons.edit, color: colorScheme.primary),
                           SizedBox(width: 8),
                           Text('Editar'),
-                        ],
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: 'excluir',
-                      child: Row(
-                        children: [
-                          Icon(Icons.delete_outline, color: colorScheme.error),
-                          SizedBox(width: 8),
-                          Text('Excluir'),
                         ],
                       ),
                     ),

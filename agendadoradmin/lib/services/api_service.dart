@@ -2,13 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:agendadoradmin/singleton/usuario_singleton.dart';
 import 'package:agendadoradmin/tools/util_exception.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 
 class ApiService {
-  static String URLBASE =
-         //'https://agendador-fzghg9hrh9bgb9dm.canadacentral-01.azurewebsites.net';
-      'http://localhost:8080';
+  static String URLBASE = kDebugMode ? 'http://localhost:8080' :
+         'https://agendador-fzghg9hrh9bgb9dm.canadacentral-01.azurewebsites.net';
   static String URLBASEIMG = 'https://valdecverymoney.online/barbearia/';
 
   static void Function()? onRedirecionamento;
