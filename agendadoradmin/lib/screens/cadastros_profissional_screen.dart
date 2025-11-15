@@ -54,7 +54,7 @@ class _CadastroProfissionalScreenState
     if (widget.profissionalEdicao != null) {
       _nomeController.text = widget.profissionalEdicao!.nome;
       _emailController.text = widget.profissionalEdicao!.email;
-      _ativo = widget.profissionalEdicao!.ativo == 1;      
+      _ativo = widget.profissionalEdicao!.ativo == 1;
     }
   }
 
@@ -71,7 +71,7 @@ class _CadastroProfissionalScreenState
         idEmpresa: EmpresaSingleton.instance.empresa!.id,
         nome: _nomeController.text,
         email: _emailController.text.toLowerCase(),
-       // foto: _fotoUrl ?? widget.profissional?.foto ?? '',
+        // foto: _fotoUrl ?? widget.profissional?.foto ?? '',
         ativo: _ativo ? 1 : 0,
       );
 
@@ -79,7 +79,10 @@ class _CadastroProfissionalScreenState
         await profissionalService.salvarProfissional(prof);
 
         if (!mounted) return;
-        UtilMensagem.showSucesso(context, "Profissional cadastrado com sucesso!");
+        UtilMensagem.showSucesso(
+          context,
+          "Profissional cadastrado com sucesso!",
+        );
 
         setState(() => _isLoading = false);
 
@@ -88,7 +91,10 @@ class _CadastroProfissionalScreenState
         await profissionalService.atualizarProfissional(prof);
 
         if (!mounted) return;
-        UtilMensagem.showSucesso(context, "Profissional atualizado com sucesso!");
+        UtilMensagem.showSucesso(
+          context,
+          "Profissional atualizado com sucesso!",
+        );
 
         setState(() => _isLoading = false);
       }
@@ -109,8 +115,10 @@ class _CadastroProfissionalScreenState
         icon: Icons.apartment,
         title: 'Profissionais',
         subtitle: 'Gerencie todas os profissionais cadastrados na plataforma.',
-        tituloBotao: '',
-        onPressed: () {},
+        tituloBotao: 'Editar Agenda',
+        onPressed: () {
+          context.go('/profissionais/cadastroagenda', extra: widget.profissionalEdicao);
+        },
       ),
       bottomNavigationBar: SafeArea(
         child: ButtonBarPadrao(
@@ -137,7 +145,9 @@ class _CadastroProfissionalScreenState
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            (_ativo) ? 'Profissional Ativo' : 'Profissional Desativado',
+                            (_ativo)
+                                ? 'Profissional Ativo'
+                                : 'Profissional Desativado',
                             style: _textTheme.bodyMedium?.copyWith(
                               color: _colorScheme.onSurface,
                             ),
@@ -162,7 +172,7 @@ class _CadastroProfissionalScreenState
                           : null,
                     ),
                     const SizedBox(height: 16),
-                   
+
                     _buildTextField(
                       controller: _emailController,
                       label: "E-mail",

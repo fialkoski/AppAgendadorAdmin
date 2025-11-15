@@ -71,7 +71,7 @@ class ApiService {
   }
 
   static Future<Response> post(
-      String url, Map<String, dynamic> jsonDados) async {
+      String url, Map<String, dynamic>? jsonDados, {List<Map<String, dynamic>>? listJsonDados}) async {
     try {
       final meuToken = await buscarToken();
       final response = await http.post(
@@ -80,7 +80,7 @@ class ApiService {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $meuToken',
         },
-        body: json.encode(jsonDados),
+        body: (jsonDados == null)? json.encode(listJsonDados): json.encode(jsonDados),
       );
 
       print(

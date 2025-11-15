@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_multi_formatter/formatters/phone_input_formatter.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
@@ -66,6 +67,29 @@ class UtilTexto {
   }
 
   static double textoToDouble(String texto) {
-    return double.tryParse(texto.replaceAll('R\$', '').replaceAll('.', '').replaceAll(',', '.').trim()) ?? 0;
+    return double.tryParse(
+          texto
+              .replaceAll('R\$', '')
+              .replaceAll('.', '')
+              .replaceAll(',', '.')
+              .trim(),
+        ) ??
+        0;
+  }
+
+  static TimeOfDay? stringToTimeOfDay(String value) {
+    try {
+      final parts = value.split(":");
+      if (parts.length != 2) return null;
+
+      final hour = int.parse(parts[0]);
+      final minute = int.parse(parts[1]);
+
+      if (hour < 0 || hour > 23 || minute < 0 || minute > 59) return null;
+
+      return TimeOfDay(hour: hour, minute: minute);
+    } catch (e) {
+      return null;
+    }
   }
 }
