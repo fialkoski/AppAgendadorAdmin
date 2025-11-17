@@ -1,8 +1,6 @@
 import 'package:agendadoradmin/models/profissional.dart';
 import 'package:agendadoradmin/models/profissional_horario.dart';
 import 'package:agendadoradmin/services/profissional_horario_service.dart';
-import 'package:agendadoradmin/services/profissional_service.dart';
-import 'package:agendadoradmin/singleton/empresa_singleton.dart';
 import 'package:agendadoradmin/tools/util_mensagem.dart';
 import 'package:agendadoradmin/tools/util_texto.dart';
 import 'package:agendadoradmin/widgets/app_bar_padrao.dart';
@@ -29,6 +27,9 @@ class CadastroProfissionalAgendaScreen extends StatefulWidget {
 class _CadastroProfissionalAgendaScreenState
     extends State<CadastroProfissionalAgendaScreen> {
   List<ProfissionalHorario> profissionalHorarios = [];
+  List<ProfissionalHorario> profissionalHorariosSalvar = [];
+  List<ProfissionalHorario> profissionalHorariosDeletar = [];
+
   final profissionalHorarioService = ProfissionalHorarioService();
   final _formKey = GlobalKey<FormState>();
 
@@ -89,26 +90,34 @@ class _CadastroProfissionalAgendaScreenState
 
     try {
       setState(() => _isLoading = true);
+      if (profissionalHorariosDeletar.isNotEmpty) {
+        await profissionalHorarioService.deletarProfissionalHorario(
+          profissionalHorariosDeletar,
+        );
+        profissionalHorariosDeletar.clear();
+      }
+
       await profissionalHorarioService.salvarProfissionalHorario(
-        profissionalHorarios,
+        profissionalHorariosSalvar,
       );
 
       if (!mounted) return;
-      UtilMensagem.showSucesso(context, "Agenda cadastrada com sucesso!");
+      profissionalHorariosSalvar.clear();
+      UtilMensagem.showSucesso(context, "Agenda atualizada!");
 
       setState(() => _isLoading = false);
     } catch (e) {
       if (!mounted) return;
       setState(() => _isLoading = false);
-      UtilMensagem.showErro(context, "Falha ao salvar agenda: $e");
+      UtilMensagem.showErro(context, "Falha ao atualizar agenda: $e");
     }
   }
 
   List<ProfissionalHorario> gerarHorarios({
     required TimeOfDay inicioExpediente,
     required TimeOfDay fimExpediente,
-    required TimeOfDay inicioIntervalo,
-    required TimeOfDay fimIntervalo,
+    required TimeOfDay? inicioIntervalo,
+    required TimeOfDay? fimIntervalo,
     int intervaloMinutos = 40,
   }) {
     List<ProfissionalHorario> horarios = [];
@@ -119,14 +128,14 @@ class _CadastroProfissionalAgendaScreenState
       -intervaloMinutos + 1,
     );
     TimeOfDay ultimoHorarioAntesIntervalo = _addMinutes(
-      inicioIntervalo,
+      inicioIntervalo!,
       -intervaloMinutos + 1,
     );
 
     while (!_isAfter(atual, ultimoHorarioExpediente)) {
       bool dentroIntervalo =
           _isAfter(atual, ultimoHorarioAntesIntervalo) &&
-          !_isAfter(atual, fimIntervalo);
+          !_isAfter(atual, fimIntervalo!);
 
       if (dentroIntervalo) {
         atual = fimIntervalo;
@@ -229,6 +238,7 @@ class _CadastroProfissionalAgendaScreenState
                             label: 'Horário do inicio do intervalo',
                             icon: Icons.access_time,
                             colorScheme: _colorScheme,
+                            obrigatorio: false
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -239,6 +249,7 @@ class _CadastroProfissionalAgendaScreenState
                             label: 'Horário do final do intervalo',
                             icon: Icons.access_time,
                             colorScheme: _colorScheme,
+                            obrigatorio: false
                           ),
                         ),
                       ],
@@ -258,22 +269,24 @@ class _CadastroProfissionalAgendaScreenState
                               return;
                             }
                             setState(() {
-                              profissionalHorarios.addAll(
-                                gerarHorarios(
-                                  inicioExpediente: UtilTexto.stringToTimeOfDay(
-                                    _horaInicioExpedienteController.text,
-                                  )!,
-                                  fimExpediente: UtilTexto.stringToTimeOfDay(
-                                    _horaFinalExpedienteController.text,
-                                  )!,
-                                  inicioIntervalo: UtilTexto.stringToTimeOfDay(
-                                    _horaInicioIntervaloController.text,
-                                  )!,
-                                  fimIntervalo: UtilTexto.stringToTimeOfDay(
-                                    _horaFinalIntervaloController.text,
-                                  )!,
-                                ),
+                              final horariosGerados = gerarHorarios(
+                                inicioExpediente: UtilTexto.stringToTimeOfDay(
+                                  _horaInicioExpedienteController.text,
+                                )!,
+                                fimExpediente: UtilTexto.stringToTimeOfDay(
+                                  _horaFinalExpedienteController.text,
+                                )!,
+                                inicioIntervalo: UtilTexto.stringToTimeOfDay(
+                                  _horaInicioIntervaloController.text,
+                                )!,
+                                fimIntervalo: UtilTexto.stringToTimeOfDay(
+                                  _horaFinalIntervaloController.text,
+                                )!,
                               );
+                              profissionalHorariosSalvar.addAll(
+                                horariosGerados,
+                              );
+                              profissionalHorarios.addAll(horariosGerados);
                             });
                           },
                           style: TextButton.styleFrom(
@@ -328,7 +341,19 @@ class _CadastroProfissionalAgendaScreenState
                                   onSelected: (value) {
                                     if (value == 'remover') {
                                       setState(() {
+
+                                        profissionalHorariosDeletar.add(item);
+
                                         profissionalHorarios.removeWhere(
+                                          (test) =>
+                                              test.diaSemana ==
+                                                  item.diaSemana &&
+                                              test.hora == item.hora &&
+                                              test.idProfissional ==
+                                                  item.idProfissional,
+                                        );
+
+                                        profissionalHorariosSalvar.removeWhere(
                                           (test) =>
                                               test.diaSemana ==
                                                   item.diaSemana &&
@@ -386,6 +411,7 @@ class _CadastroProfissionalAgendaScreenState
     required String label,
     required IconData icon,
     required ColorScheme colorScheme,
+    bool obrigatorio = true,
   }) {
     return TextFormField(
       controller: controller,
@@ -404,12 +430,12 @@ class _CadastroProfissionalAgendaScreenState
           );
         }),
       ],
-      validator: (v) {
+      validator: (obrigatorio) ? (v) {
         if (v == null || v.isEmpty) return 'Preencha o campo "$label"';
         final regex = RegExp(r'^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$');
         if (!regex.hasMatch(v)) return 'Horário inválido';
         return null;
-      },
+      } : null,
       style: TextStyle(color: colorScheme.onSurface),
       decoration: InputDecoration(
         prefixIcon: Icon(icon, color: colorScheme.primary),

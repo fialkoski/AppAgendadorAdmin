@@ -121,9 +121,14 @@ class ApiService {
     }
   }
 
-  static Future<Response> delete(String url) async {
+  static Future<Response> delete(String url, Map<String, dynamic>? jsonDados, {List<Map<String, dynamic>>? listJsonDados}) async {
     try {
-      final response = await http.delete(Uri.parse('$URLBASE$url'));
+      final meuToken = await buscarToken();
+      final response = await http.delete(Uri.parse('$URLBASE$url'), headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $meuToken',
+        },
+        body: (jsonDados == null)? json.encode(listJsonDados): json.encode(jsonDados),);
       print(
           'Requisição:$URLBASE$url\nHTTP:${response.statusCode}\nJSON retornado: ${response.body}');
       return response;

@@ -80,7 +80,7 @@ class UtilTexto {
   static TimeOfDay? stringToTimeOfDay(String value) {
     try {
       final parts = value.split(":");
-      if (parts.length != 2) return null;
+      if (parts.length != 2) return TimeOfDay(hour: 0, minute: 0);
 
       final hour = int.parse(parts[0]);
       final minute = int.parse(parts[1]);
@@ -89,7 +89,7 @@ class UtilTexto {
 
       return TimeOfDay(hour: hour, minute: minute);
     } catch (e) {
-      return null;
+      return TimeOfDay(hour: 0, minute: 0);
     }
   }
 }

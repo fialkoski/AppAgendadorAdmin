@@ -103,8 +103,8 @@ class _ServicosScreenState extends State<ServicosScreen> {
   }
 
   Future<void> _deleteServico(int id) async {
-    try {
-      await ApiService.delete('/api/$idEmpresa/servicos/$id');
+    /*try {
+      await ApiService.delete('/api/$idEmpresa/servicos/$id',);
       setState(() {
         _servicosFuture = ApiService.buscarLista('/api/$idEmpresa/servicos', Servico.fromJson);
       });
@@ -112,7 +112,7 @@ class _ServicosScreenState extends State<ServicosScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Erro ao excluir: $e')),
       );
-    }
+    }*/
   }
 
   @override

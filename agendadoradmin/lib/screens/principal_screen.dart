@@ -163,8 +163,8 @@ class _MainLayoutState extends State<PrincipalScreen> {
             ),
             _menuItem(Icons.dashboard, 'Dashboard', '/dashboard', context),
             _menuItem(Icons.business, 'Empresas', '/empresas', context),
-            _menuItem(Icons.people, 'Profissionais', '/profissionais', context),
             _menuItem(Icons.content_cut, 'Serviços', '/servicos', context),
+            _menuItem(Icons.people, 'Profissionais', '/profissionais', context),
             const Spacer(),
             Consumer<ThemeNotifier>(
               builder: (context, themeNotifier, child) => ListTile(

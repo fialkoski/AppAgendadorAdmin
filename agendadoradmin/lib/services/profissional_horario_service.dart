@@ -31,6 +31,23 @@ class ProfissionalHorarioService {
     }
   }
 
+  Future<String> deletarProfissionalHorario(List<ProfissionalHorario> listaProfissionalHorario) async {
+    List<Map<String, dynamic>> jsonList =
+    listaProfissionalHorario.map((h) => h.toJson()).toList();
+
+    final response = await ApiService.delete(
+      '/api/${EmpresaSingleton.instance.empresa!.id}/profissionalhorarios',
+      null, listJsonDados: jsonList,
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return 'Agenda excluida com sucesso!';
+    } else {
+      ErroRequisicao erro = ErroRequisicao.fromJson(jsonDecode(response.body));
+      throw Exception(erro.mensagemFormatada().replaceFirst('Exception: ', ''));
+    }
+  }
+
   Future<String> excluirProfissional(int id) async {
     final response = await http.delete(
       Uri.parse(
