@@ -1,4 +1,5 @@
 import 'package:agendadoradmin/models/profissional.dart';
+import 'package:agendadoradmin/models/profissional_servico.dart';
 import 'package:agendadoradmin/services/profissional_service.dart';
 import 'package:agendadoradmin/singleton/empresa_singleton.dart';
 import 'package:agendadoradmin/tools/util_mensagem.dart';
@@ -28,6 +29,9 @@ class CadastroProfissionalScreen extends StatefulWidget {
 class _CadastroProfissionalScreenState
     extends State<CadastroProfissionalScreen> {
   final ProfissionalService profissionalService = ProfissionalService();
+  List<ProfissionalServico> listaProfissionalServicos = [];
+  List<ProfissionalServico> listaProfissionalServicosSalvar = [];
+  List<ProfissionalServico> listaProfissionalServicosDeletar = [];
   final _formKey = GlobalKey<FormState>();
 
   final _nomeController = TextEditingController();
@@ -51,11 +55,25 @@ class _CadastroProfissionalScreenState
   @override
   void initState() {
     super.initState();
+
     if (widget.profissionalEdicao != null) {
+      buscarListaProfissionalServicos();
       _nomeController.text = widget.profissionalEdicao!.nome;
       _emailController.text = widget.profissionalEdicao!.email;
       _ativo = widget.profissionalEdicao!.ativo == 1;
     }
+  }
+
+  void buscarListaProfissionalServicos() async {
+    final lista = await profissionalService.buscarListaProfissionalServicos(
+      widget.profissionalEdicao!.id!,
+    );
+
+    if (!mounted) return;
+
+    setState(() {
+      listaProfissionalServicos = lista;
+    });
   }
 
   void _salvarProfissional() async {
@@ -76,7 +94,30 @@ class _CadastroProfissionalScreenState
       );
 
       if ((widget.profissionalEdicao?.id ?? 0) == 0) {
-        await profissionalService.salvarProfissional(prof);
+        var profissionalSalvo = await profissionalService.salvarProfissional(
+          prof,
+        );
+
+        if (listaProfissionalServicosDeletar.isNotEmpty) {
+          listaProfissionalServicosDeletar.forEach((item) {
+            item.idProfissional = profissionalSalvo.id!;
+          });
+          await profissionalService.deletarProfissionalServico(
+            listaProfissionalServicosDeletar,
+          );
+          listaProfissionalServicosDeletar.clear();
+        }
+
+        if (listaProfissionalServicosSalvar.isNotEmpty) {
+          listaProfissionalServicosSalvar.forEach((item) {
+            item.idProfissional = profissionalSalvo.id!;
+          });
+
+          await profissionalService.salvarProfissionalServico(
+            listaProfissionalServicosSalvar,
+          );
+          listaProfissionalServicosSalvar.clear();
+        }
 
         if (!mounted) return;
         UtilMensagem.showSucesso(
@@ -88,7 +129,30 @@ class _CadastroProfissionalScreenState
 
         if (mounted) context.go('/profissionais');
       } else {
-        await profissionalService.atualizarProfissional(prof);
+        var profissionalSalvo = await profissionalService.atualizarProfissional(
+          prof,
+        );
+
+        if (listaProfissionalServicosDeletar.isNotEmpty) {
+          listaProfissionalServicosDeletar.forEach((item) {
+            item.idProfissional = profissionalSalvo.id!;
+          });
+          await profissionalService.deletarProfissionalServico(
+            listaProfissionalServicosDeletar,
+          );
+          listaProfissionalServicosDeletar.clear();
+        }
+
+        if (listaProfissionalServicosSalvar.isNotEmpty) {
+          listaProfissionalServicosSalvar.forEach((item) {
+            item.idProfissional = profissionalSalvo.id!;
+          });
+
+          await profissionalService.salvarProfissionalServico(
+            listaProfissionalServicosSalvar,
+          );
+          listaProfissionalServicosSalvar.clear();
+        }
 
         if (!mounted) return;
         UtilMensagem.showSucesso(
@@ -117,7 +181,10 @@ class _CadastroProfissionalScreenState
         subtitle: 'Gerencie todas os profissionais cadastrados na plataforma.',
         tituloBotao: 'Editar Agenda',
         onPressed: () {
-          context.go('/profissionais/cadastroagenda', extra: widget.profissionalEdicao);
+          context.go(
+            '/profissionais/cadastroagenda',
+            extra: widget.profissionalEdicao,
+          );
         },
       ),
       bottomNavigationBar: SafeArea(
@@ -183,6 +250,68 @@ class _CadastroProfissionalScreenState
                         if (v == null || v.isEmpty) return 'Preencha o E-mail';
                         if (v.contains('@') == false) return 'E-mail inválido';
                         return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text("Lista de Serviços"),
+                    ),
+                    const SizedBox(height: 12),
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: listaProfissionalServicos.length,
+                      itemBuilder: (context, index) {
+                        final item = listaProfissionalServicos[index];
+
+                        return Card(
+                          child: Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Checkbox(
+                                  value: item.habilitado == 1,
+                                  side: BorderSide(
+                                    color: Colors.black, // borda
+                                    width: 2,
+                                  ),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      item.habilitado = value! ? 1 : 0;
+                                      item.idProfissional =
+                                          widget.profissionalEdicao?.id ?? 0;
+                                      if (item.habilitado == 1) {
+                                        listaProfissionalServicosSalvar.add(
+                                          item,
+                                        );
+                                        listaProfissionalServicosDeletar
+                                            .removeWhere(
+                                              (test) =>
+                                                  test.idServico ==
+                                                  item.idServico,
+                                            );
+                                      } else {
+                                        listaProfissionalServicosDeletar.add(
+                                          item,
+                                        );
+                                        listaProfissionalServicosSalvar
+                                            .removeWhere(
+                                              (test) =>
+                                                  test.idServico ==
+                                                  item.idServico,
+                                            );
+                                      }
+                                    });
+                                  },
+                                ),
+                                SizedBox(width: 8),
+                                Text(item.descricao),
+                              ],
+                            ),
+                          ),
+                        );
                       },
                     ),
                   ],

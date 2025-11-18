@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:agendadoradmin/models/erro_requisicao.dart';
 import 'package:agendadoradmin/models/profissional.dart';
+import 'package:agendadoradmin/models/profissional_servico.dart';
 import 'package:agendadoradmin/services/api_service.dart';
 import 'package:agendadoradmin/singleton/empresa_singleton.dart';
 import 'package:flutter/material.dart';
@@ -23,28 +24,28 @@ class ProfissionalService {
     );
   }
 
-  Future<String> salvarProfissional(Profissional profissional) async {
+  Future<Profissional> salvarProfissional(Profissional profissional) async {
     final response = await ApiService.post(
       '/api/${EmpresaSingleton.instance.empresa!.id}/profissionais',
       profissional.toJson(),
     );
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return 'Profissional salvo com sucesso!';
+      return Profissional.fromJson(jsonDecode(response.body));
     } else {
       ErroRequisicao erro = ErroRequisicao.fromJson(jsonDecode(response.body));
       throw Exception(erro.mensagemFormatada().replaceFirst('Exception: ', ''));
     }
   }
 
-  Future<String> atualizarProfissional(Profissional profissional) async {
+  Future<Profissional> atualizarProfissional(Profissional profissional) async {
     final response = await ApiService.put(
       '/api/${EmpresaSingleton.instance.empresa!.id}/profissionais/${profissional.id}',
       profissional.toJson(),
     );
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      return 'Empresa atualizada!';
+      return Profissional.fromJson(jsonDecode(response.body));
     } else {
       ErroRequisicao erro = ErroRequisicao.fromJson(jsonDecode(response.body));
       throw Exception(erro.mensagemFormatada().replaceFirst('Exception: ', ''));
@@ -99,4 +100,46 @@ class ProfissionalService {
       return e.toString();
     }
   }
+
+  Future<List<ProfissionalServico>> buscarListaProfissionalServicos(int idProfissional) async {
+    return ApiService.buscarLista<ProfissionalServico>(
+      '/api/${EmpresaSingleton.instance.empresa!.id}/profissionalservicos/profissional/$idProfissional',
+      ProfissionalServico.fromJson,
+    );
+  }
+
+  Future<String> salvarProfissionalServico(List<ProfissionalServico> listaProfissionalServico) async {
+    List<Map<String, dynamic>> jsonList =
+    listaProfissionalServico.map((h) => h.toJson()).toList();
+
+    final response = await ApiService.post(
+      '/api/${EmpresaSingleton.instance.empresa!.id}/profissionalservicos',
+      null, listJsonDados: jsonList,
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return 'Serviços salvo com sucesso!';
+    } else {
+      ErroRequisicao erro = ErroRequisicao.fromJson(jsonDecode(response.body));
+      throw Exception(erro.mensagemFormatada().replaceFirst('Exception: ', ''));
+    }
+  }
+
+  Future<String> deletarProfissionalServico(List<ProfissionalServico> listaProfissionalServico) async {
+    List<Map<String, dynamic>> jsonList =
+    listaProfissionalServico.map((h) => h.toJson()).toList();
+
+    final response = await ApiService.delete(
+      '/api/${EmpresaSingleton.instance.empresa!.id}/profissionalservicos',
+      null, listJsonDados: jsonList,
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return 'Serviços excluidos com sucesso!';
+    } else {
+      ErroRequisicao erro = ErroRequisicao.fromJson(jsonDecode(response.body));
+      throw Exception(erro.mensagemFormatada().replaceFirst('Exception: ', ''));
+    }
+  }
+
 }
