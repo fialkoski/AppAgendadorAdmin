@@ -1,6 +1,6 @@
 import 'package:agendadoradmin/models/servico.dart';
 import 'package:agendadoradmin/services/servico_service.dart';
-import 'package:agendadoradmin/singleton/empresa_singleton.dart';
+import 'package:agendadoradmin/singleton/lista_empresa_singleton.dart';
 import 'package:agendadoradmin/tools/util_mensagem.dart';
 import 'package:agendadoradmin/tools/util_texto.dart';
 import 'package:agendadoradmin/widgets/app_bar_padrao.dart';
@@ -63,7 +63,7 @@ class _CadastroServicoScreenState extends State<CadastroServicoScreen> {
 
       Servico servicoSalvar = Servico(
         id: widget.servicoEdicao?.id ?? 0,
-        idEmpresa: EmpresaSingleton.instance.empresa!.id,
+        idEmpresa: ListaEmpresaSingleton.instance.empresa!.id,
         descricao: _descricaoController.text,
         tempo: _tempoController.text,
         preco: _precoController.text.isNotEmpty
@@ -219,7 +219,7 @@ class _CadastroServicoScreenState extends State<CadastroServicoScreen> {
         labelText: label,
         labelStyle: TextStyle(color: colorScheme.onSurface.withOpacity(0.7)),
         filled: true,
-        fillColor: colorScheme.surfaceContainerHighest ?? Colors.black12,
+        fillColor: colorScheme.surfaceContainerHighest,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(color: colorScheme.outlineVariant),

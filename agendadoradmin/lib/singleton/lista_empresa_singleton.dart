@@ -1,42 +1,78 @@
+import 'dart:convert';
+
 import 'package:agendadoradmin/models/empresa.dart';
+import 'package:agendadoradmin/tools/util.dart';
 
 class ListaEmpresaSingleton {
   static final ListaEmpresaSingleton _instance =
       ListaEmpresaSingleton._internal();
 
-  List<Empresa>? _empresas;
-
   ListaEmpresaSingleton._internal();
-
   static ListaEmpresaSingleton get instance => _instance;
 
-  List<Empresa>? get empresas => _empresas;
+  List<Empresa> _empresas = [];
 
-  /// Define o usuário atual e salva localmente
+  List<Empresa> get empresas => _empresas;
+
   Future<void> setListaEmpresa(List<Empresa> empresas) async {
     _empresas = empresas;
+    salvarListaEmpresaUsuarioLocal();
   }
 
   Future<void> addEmpresa(Empresa empresa) async {
-    if (_empresas == null) {
-      _empresas = List.empty();
-    } else {
-      _empresas!.add(empresa);
-    }
+    _empresas.add(empresa);
+
+    salvarListaEmpresaUsuarioLocal();
   }
 
   void updateEmpresa(Empresa empresaAtualizada) {
-    _empresas ??= List.empty();
-    final index = _empresas!.indexWhere((e) => e.id == empresaAtualizada.id);
+    final index = _empresas.indexWhere((e) => e.id == empresaAtualizada.id);
     if (index != -1) {
-      _empresas![index] = empresaAtualizada;
+      _empresas[index] = empresaAtualizada;
     } else {
       addEmpresa(empresaAtualizada);
+    }
+    salvarListaEmpresaUsuarioLocal();
+  }
+
+  Future<void> salvarListaEmpresaUsuarioLocal() async {
+    final jsonList = empresas.map((e) => e.toJson()).toList();
+    final jsonStringListaEmpresa = jsonEncode(jsonList);
+    Util.salvaDadosLocal("listaEmpresaUsuario", jsonStringListaEmpresa);
+  }
+
+  Future<void> buscarListaEmpresaUsuarioLocal() async {
+    final jsonStringListaEmpresa = await Util.buscarDadosLocal(
+      "listaEmpresaUsuario",
+    );
+
+    if (jsonStringListaEmpresa.isNotEmpty) {
+      final List decoded = jsonDecode(jsonStringListaEmpresa);
+      List<Empresa> empresasBanco = decoded.map((e) => Empresa.fromJson(e)).toList();
+      _empresas.addAll(empresasBanco);
+
+      _selectedEmpresaId = int.tryParse(
+        await Util.buscarDadosLocal("idEmpresaSelecionada"),
+      );
     }
   }
 
   /// Limpa os dados (logout)
   Future<void> clear() async {
-    _empresas = null;
+    _empresas = [];
+  }
+
+  ///Empresa
+  int? _selectedEmpresaId;
+  int? get selectedEmpresaId => _selectedEmpresaId;
+
+  Future<void> setSelectedEmpresaId(int id) async {
+    _selectedEmpresaId = id;
+    Util.salvaDadosLocal("idEmpresaSelecionada", _selectedEmpresaId.toString());
+  }
+
+  Empresa? get empresa {
+    int? index = _empresas.indexWhere((e) => e.id == _selectedEmpresaId);
+    return _empresas[index];
   }
 }

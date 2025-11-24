@@ -57,9 +57,9 @@ class Util {
   }
 
   static Color? statusAgendamento(String data) {
-    List<String> PartesData = data.split('/');
+    List<String> partesData = data.split('/');
     String verificaAgenda =
-        "${PartesData[2]}-${PartesData[1]}-${PartesData[0]}";
+        "${partesData[2]}-${partesData[1]}-${partesData[0]}";
 
     DateTime hoje = DateTime.now();
     // Data específica
@@ -70,23 +70,20 @@ class Util {
         hoje.month == dataEspecifica.month &&
         hoje.day == dataEspecifica.day) {
       return Colors.orangeAccent[100];
-      print("Hoje é o dia específico!");
     } else if (hoje.isBefore(dataEspecifica)) {
-      print("O dia específico ainda não chegou.");
       return Colors.green[100];
     } else {
-      print("O dia específico já passou.");
       return Colors.deepOrangeAccent[200];
     }
   }
 
   // Função para converter o formato "dd-MM-yyyy" para o formato "yyyy-MM-dd"
   static String dataFormatadaVisual(String date) {
-    List<String> PartesData = Util.formatarData(
+    List<String> partesData = Util.formatarData(
       date,
       apenasDataFormatada: true,
     ).split('-');
-    return "${PartesData[2]}/${PartesData[1]}/${PartesData[0]}";
+    return "${partesData[2]}/${partesData[1]}/${partesData[0]}";
   }
 
   static Future<bool> checkImageAccessibility(String url) async {

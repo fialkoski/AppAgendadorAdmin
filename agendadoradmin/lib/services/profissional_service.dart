@@ -5,28 +5,28 @@ import 'package:agendadoradmin/models/erro_requisicao.dart';
 import 'package:agendadoradmin/models/profissional.dart';
 import 'package:agendadoradmin/models/profissional_servico.dart';
 import 'package:agendadoradmin/services/api_service.dart';
-import 'package:agendadoradmin/singleton/empresa_singleton.dart';
+import 'package:agendadoradmin/singleton/lista_empresa_singleton.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class ProfissionalService {
   Future<List<Profissional>> buscarListaProfissionais() async {
     return ApiService.buscarLista<Profissional>(
-      '/api/${EmpresaSingleton.instance.empresa!.id}/profissionais',
+      '/api/${ListaEmpresaSingleton.instance.empresa!.id}/profissionais',
       Profissional.fromJson,
     );
   }
 
   Future<Profissional> buscarProfissionalPorId(int id) async {
     return ApiService.buscar<Profissional>(
-      '/api/${EmpresaSingleton.instance.empresa!.id}/profissionais/$id',
+      '/api/${ListaEmpresaSingleton.instance.empresa!.id}/profissionais/$id',
       Profissional.fromJson,
     );
   }
 
   Future<Profissional> salvarProfissional(Profissional profissional) async {
     final response = await ApiService.post(
-      '/api/${EmpresaSingleton.instance.empresa!.id}/profissionais',
+      '/api/${ListaEmpresaSingleton.instance.empresa!.id}/profissionais',
       profissional.toJson(),
     );
 
@@ -40,7 +40,7 @@ class ProfissionalService {
 
   Future<Profissional> atualizarProfissional(Profissional profissional) async {
     final response = await ApiService.put(
-      '/api/${EmpresaSingleton.instance.empresa!.id}/profissionais/${profissional.id}',
+      '/api/${ListaEmpresaSingleton.instance.empresa!.id}/profissionais/${profissional.id}',
       profissional.toJson(),
     );
 
@@ -55,7 +55,7 @@ class ProfissionalService {
   Future<String> excluirProfissional(int id) async {
     final response = await http.delete(
       Uri.parse(
-        '${ApiService.URLBASE}/api/${EmpresaSingleton.instance.empresa!.id}/profissionais/$id',
+        '${ApiService.URLBASE}/api/${ListaEmpresaSingleton.instance.empresa!.id}/profissionais/$id',
       ),
       headers: {'Content-Type': 'application/json'},
     );
@@ -78,11 +78,11 @@ class ProfissionalService {
       http.MultipartFile.fromBytes(
         'file', // Corresponde a $_FILES['file'] no PHP
         fotoBytes,
-        filename: fotoNome ?? 'imagem.jpg',
+        filename: fotoNome,
       ),
     );
     // Envia idEmpresa como campo
-    final idEmpresa = EmpresaSingleton.instance.empresa?.id.toString() ?? '';
+    final idEmpresa = ListaEmpresaSingleton.instance.empresa?.id.toString() ?? '';
     request.fields['idEmpresa'] = idEmpresa;
     debugPrint('Enviando idEmpresa: $idEmpresa');
 
@@ -103,7 +103,7 @@ class ProfissionalService {
 
   Future<List<ProfissionalServico>> buscarListaProfissionalServicos(int idProfissional) async {
     return ApiService.buscarLista<ProfissionalServico>(
-      '/api/${EmpresaSingleton.instance.empresa!.id}/profissionalservicos/profissional/$idProfissional',
+      '/api/${ListaEmpresaSingleton.instance.empresa!.id}/profissionalservicos/profissional/$idProfissional',
       ProfissionalServico.fromJson,
     );
   }
@@ -113,7 +113,7 @@ class ProfissionalService {
     listaProfissionalServico.map((h) => h.toJson()).toList();
 
     final response = await ApiService.post(
-      '/api/${EmpresaSingleton.instance.empresa!.id}/profissionalservicos',
+      '/api/${ListaEmpresaSingleton.instance.empresa!.id}/profissionalservicos',
       null, listJsonDados: jsonList,
     );
 
@@ -130,7 +130,7 @@ class ProfissionalService {
     listaProfissionalServico.map((h) => h.toJson()).toList();
 
     final response = await ApiService.delete(
-      '/api/${EmpresaSingleton.instance.empresa!.id}/profissionalservicos',
+      '/api/${ListaEmpresaSingleton.instance.empresa!.id}/profissionalservicos',
       null, listJsonDados: jsonList,
     );
 

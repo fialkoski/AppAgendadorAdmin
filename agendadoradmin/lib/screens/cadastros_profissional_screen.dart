@@ -1,7 +1,7 @@
 import 'package:agendadoradmin/models/profissional.dart';
 import 'package:agendadoradmin/models/profissional_servico.dart';
 import 'package:agendadoradmin/services/profissional_service.dart';
-import 'package:agendadoradmin/singleton/empresa_singleton.dart';
+import 'package:agendadoradmin/singleton/lista_empresa_singleton.dart';
 import 'package:agendadoradmin/tools/util_mensagem.dart';
 import 'package:agendadoradmin/widgets/app_bar_padrao.dart';
 import 'package:agendadoradmin/widgets/button_bar_padrao.dart';
@@ -86,7 +86,7 @@ class _CadastroProfissionalScreenState
 
       Profissional prof = Profissional(
         id: widget.profissionalEdicao?.id ?? 0,
-        idEmpresa: EmpresaSingleton.instance.empresa!.id,
+        idEmpresa: ListaEmpresaSingleton.instance.empresa!.id,
         nome: _nomeController.text,
         email: _emailController.text.toLowerCase(),
         // foto: _fotoUrl ?? widget.profissional?.foto ?? '',
@@ -346,7 +346,7 @@ class _CadastroProfissionalScreenState
         labelText: label,
         labelStyle: TextStyle(color: colorScheme.onSurface.withOpacity(0.7)),
         filled: true,
-        fillColor: colorScheme.surfaceContainerHighest ?? Colors.black12,
+        fillColor: colorScheme.surfaceContainerHighest,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(color: colorScheme.outlineVariant),

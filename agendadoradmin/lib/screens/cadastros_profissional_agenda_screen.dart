@@ -442,7 +442,7 @@ class _CadastroProfissionalAgendaScreenState
         labelText: label,
         labelStyle: TextStyle(color: colorScheme.onSurface.withOpacity(0.7)),
         filled: true,
-        fillColor: colorScheme.surfaceContainerHighest ?? Colors.black12,
+        fillColor: colorScheme.surfaceContainerHighest,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(color: colorScheme.outlineVariant),

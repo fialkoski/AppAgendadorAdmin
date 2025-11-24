@@ -58,7 +58,7 @@ class _AppBarPadraoState extends State<AppBarPadrao> {
                 widget.title,
                 style: _textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: _colorScheme!.onSurface,
+                  color: _colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 6),

@@ -3,13 +3,13 @@ import 'dart:convert';
 import 'package:agendadoradmin/models/erro_requisicao.dart';
 import 'package:agendadoradmin/models/profissional_horario.dart';
 import 'package:agendadoradmin/services/api_service.dart';
-import 'package:agendadoradmin/singleton/empresa_singleton.dart';
+import 'package:agendadoradmin/singleton/lista_empresa_singleton.dart';
 import 'package:http/http.dart' as http;
 
 class ProfissionalHorarioService {
   Future<List<ProfissionalHorario>> buscarListaProfissionalHorarios(int idProfissional) async {
     return ApiService.buscarLista<ProfissionalHorario>(
-      '/api/${EmpresaSingleton.instance.empresa!.id}/profissionalhorarios/profissional/$idProfissional',
+      '/api/${ListaEmpresaSingleton.instance.empresa!.id}/profissionalhorarios/profissional/$idProfissional',
       ProfissionalHorario.fromJson,
     );
   }
@@ -19,7 +19,7 @@ class ProfissionalHorarioService {
     listaProfissionalHorario.map((h) => h.toJson()).toList();
 
     final response = await ApiService.post(
-      '/api/${EmpresaSingleton.instance.empresa!.id}/profissionalhorarios',
+      '/api/${ListaEmpresaSingleton.instance.empresa!.id}/profissionalhorarios',
       null, listJsonDados: jsonList,
     );
 
@@ -36,7 +36,7 @@ class ProfissionalHorarioService {
     listaProfissionalHorario.map((h) => h.toJson()).toList();
 
     final response = await ApiService.delete(
-      '/api/${EmpresaSingleton.instance.empresa!.id}/profissionalhorarios',
+      '/api/${ListaEmpresaSingleton.instance.empresa!.id}/profissionalhorarios',
       null, listJsonDados: jsonList,
     );
 
@@ -51,7 +51,7 @@ class ProfissionalHorarioService {
   Future<String> excluirProfissional(int id) async {
     final response = await http.delete(
       Uri.parse(
-        '${ApiService.URLBASE}/api/${EmpresaSingleton.instance.empresa!.id}/profissionais/$id',
+        '${ApiService.URLBASE}/api/${ListaEmpresaSingleton.instance.empresa!.id}/profissionais/$id',
       ),
       headers: {'Content-Type': 'application/json'},
     );
