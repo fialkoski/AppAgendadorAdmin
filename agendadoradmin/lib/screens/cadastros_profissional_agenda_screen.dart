@@ -37,7 +37,7 @@ class _CadastroProfissionalAgendaScreenState
   final _horaFinalExpedienteController = TextEditingController();
   final _horaInicioIntervaloController = TextEditingController();
   final _horaFinalIntervaloController = TextEditingController();
-  int diaSelecionado = 1;
+  int diaSelecionado = 2;
 
   bool _isLoading = false;
 
@@ -475,7 +475,7 @@ class _DiasSemanaSelectorState extends State<DiasSemanaSelector> {
     'Sexta',
     'Sábado',
   ];
-  int diaSelecionado = 1;
+  int diaSelecionado = 2;
 
   @override
   Widget build(BuildContext context) {
@@ -486,11 +486,11 @@ class _DiasSemanaSelectorState extends State<DiasSemanaSelector> {
         children: dias.asMap().entries.map((entry) {
           int index = entry.key;
           String dia = entry.value;
-          bool selecionado = diaSelecionado == index;
+          bool selecionado = diaSelecionado == index+1;
 
           return GestureDetector(
             onTap: () {
-              setState(() => diaSelecionado = index);
+              setState(() => diaSelecionado = index+1);
               widget.onDiaSelecionado?.call(diaSelecionado);
             },
             child: AnimatedContainer(

@@ -1,6 +1,7 @@
 import 'package:agendadoradmin/models/empresa.dart';
 import 'package:agendadoradmin/models/profissional.dart';
 import 'package:agendadoradmin/models/servico.dart';
+import 'package:agendadoradmin/screens/agenda_screen.dart';
 import 'package:agendadoradmin/screens/cadastros_profissional_agenda_screen.dart';
 import 'package:agendadoradmin/screens/cadastros_profissional_screen.dart';
 import 'package:agendadoradmin/screens/cadastros_servico_screen.dart';
@@ -111,6 +112,12 @@ class RotasConfig {
                 },
               ),
             ],
+          ),
+          GoRoute(
+            path: '/agendas',
+            builder: (context, state) {
+              return AgendaScreen();
+            },
           ),
         ],
       ),
