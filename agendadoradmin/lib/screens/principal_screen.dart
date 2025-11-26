@@ -46,7 +46,9 @@ class _MainLayoutState extends State<PrincipalScreen> {
   }
 
   void buscarListaEmpresa() async {
-    await ListaEmpresaSingleton.instance.buscarListaEmpresaUsuarioLocal().then((value) {
+    await ListaEmpresaSingleton.instance.buscarListaEmpresaUsuarioLocal().then((
+      value,
+    ) {
       setState(() {
         ListaEmpresaSingleton.instance.empresas;
       });
@@ -114,9 +116,10 @@ class _MainLayoutState extends State<PrincipalScreen> {
   Widget _menuLateral() {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final themeNotifier = Provider.of<ThemeNotifier>(context);
     return MouseRegion(
-      // onEnter: (_) => setState(() => _isCollapsed = false),
-      // onExit: (_) => setState(() => _isCollapsed = true),
+       //onEnter: (_) => setState(() => _isCollapsed = false),
+       //onExit: (_) => setState(() => _isCollapsed = true),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         width: _isCollapsed ? 70 : 230,
@@ -134,7 +137,12 @@ class _MainLayoutState extends State<PrincipalScreen> {
                 ),
                 child: Row(
                   children: [
-                    Image.asset("assets/img/logo.png", height: 25),
+                    Image.asset(
+                      themeNotifier.isDarkMode
+                          ? "assets/img/logo128.png"
+                          : "assets/img/logoClaro128.png",
+                      height: 25,
+                    ),
 
                     const SizedBox(width: 8),
 
@@ -147,7 +155,7 @@ class _MainLayoutState extends State<PrincipalScreen> {
                           Text(
                             'Barbearia Fácil',
                             style: theme.textTheme.titleLarge?.copyWith(
-                              color: colorScheme.primary,
+                              color: colorScheme.onSurface,
                               fontWeight: FontWeight.bold,
                               fontSize: 14,
                             ),
@@ -155,7 +163,9 @@ class _MainLayoutState extends State<PrincipalScreen> {
                           Text(
                             'Software para barbearia',
                             style: theme.textTheme.bodySmall?.copyWith(
-                              color: colorScheme.onSurface.withOpacity(0.7),
+                              color: colorScheme.onSurface.withValues(
+                                alpha: 0.7,
+                              ),
                               fontSize: 10,
                             ),
                           ),
@@ -170,7 +180,7 @@ class _MainLayoutState extends State<PrincipalScreen> {
             _menuItem(Icons.business, 'Empresas', '/empresas', context),
             _menuItem(Icons.content_cut, 'Serviços', '/servicos', context),
             _menuItem(Icons.people, 'Profissionais', '/profissionais', context),
-            _menuItem(Icons.people, 'Agenda', '/agendas', context),
+            _menuItem(Icons.calendar_month, 'Agenda', '/agendas', context),
             const Spacer(),
             Consumer<ThemeNotifier>(
               builder: (context, themeNotifier, child) => ListTile(
@@ -181,7 +191,7 @@ class _MainLayoutState extends State<PrincipalScreen> {
                 title: Text(
                   'Tema ${themeNotifier.isDarkMode ? 'Claro' : 'Escuro'}',
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onSurface.withOpacity(0.7),
+                    color: colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
                 ),
                 onTap: () {
@@ -261,9 +271,7 @@ class _MainLayoutState extends State<PrincipalScreen> {
                   context.go('/dashboard');
                 },
                 selectedItemBuilder: (context) {
-                  return ListaEmpresaSingleton.instance.empresas.map((
-                    empresa,
-                  ) {
+                  return ListaEmpresaSingleton.instance.empresas.map((empresa) {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -368,7 +376,7 @@ class _MainLayoutState extends State<PrincipalScreen> {
     final isActive = GoRouterState.of(context).uri.toString() == route;
 
     final activeColor = colorScheme.primary;
-    final inactiveColor = colorScheme.onSurface.withOpacity(0.7);
+    final inactiveColor = colorScheme.onSurface.withValues(alpha: 0.7);
 
     return InkWell(
       onTap: () => context.go(route),
@@ -376,7 +384,9 @@ class _MainLayoutState extends State<PrincipalScreen> {
         margin: const EdgeInsets.symmetric(vertical: 4),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
-          color: isActive ? activeColor.withOpacity(0.08) : Colors.transparent,
+          color: isActive
+              ? activeColor.withValues(alpha: 0.08)
+              : Colors.transparent,
           border: isActive
               ? Border(left: BorderSide(color: activeColor, width: 3))
               : null,

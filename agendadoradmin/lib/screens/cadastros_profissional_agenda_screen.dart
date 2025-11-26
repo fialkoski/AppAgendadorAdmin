@@ -294,7 +294,7 @@ class _CadastroProfissionalAgendaScreenState
                               horizontal: 28,
                               vertical: 22,
                             ),
-                            foregroundColor: _colorScheme.onSurface.withOpacity(
+                            foregroundColor: _colorScheme.onSurface.withValues(alpha:
                               0.8,
                             ),
                             shape: RoundedRectangleBorder(
@@ -440,7 +440,7 @@ class _CadastroProfissionalAgendaScreenState
       decoration: InputDecoration(
         prefixIcon: Icon(icon, color: colorScheme.primary),
         labelText: label,
-        labelStyle: TextStyle(color: colorScheme.onSurface.withOpacity(0.7)),
+        labelStyle: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.7)),
         filled: true,
         fillColor: colorScheme.surfaceContainerHighest,
         border: OutlineInputBorder(

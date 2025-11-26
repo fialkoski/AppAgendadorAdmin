@@ -17,17 +17,29 @@ class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
     return ThemeData.dark().copyWith(
       colorScheme: ColorScheme(
         brightness: Brightness.dark,
-        primary: Colors.orange,
-        onPrimary: Colors.white,
-        secondary: Colors.grey[700]!,
+        primary: Color(0xFFD4A056), // Dourado premium
+        onPrimary: Colors.black, // Melhor contraste
+
+        secondary: Color(0xFF6D6D6D), // Cinza metálico
         onSecondary: Colors.white,
-        surfaceContainer: Color(0xFF181818),
-        onSurfaceVariant: Color(0xFF232323),
-        surface: Color(0xFF232323),
-        onSurface: Colors.white70,
-        error: Colors.redAccent,
+
+        surface: Color(0xFF1E1E1E), // Grafite para cards
+        onSurface: Color(0xFFE0E0E0), // Texto claro
+
+        surfaceContainer: Color(0xFF121212), // Fundo principal
+        onSurfaceVariant: Color(0xFF2A2A2A), // Divisores / detalhes
+
+        error: Color(0xFFCF6679), // Vermelho dark
         onError: Colors.white,
       ),
+
+      scaffoldBackgroundColor: Color(0xFF121212),
+      cardColor: Color(0xFF1E1E1E),
+      appBarTheme: AppBarTheme(
+        backgroundColor: Color(0xFF121212),
+        foregroundColor: Colors.white,
+      ),
+      dividerColor: Color(0xFF2A2A2A),
     );
   }
 
@@ -35,23 +47,37 @@ class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
     return ThemeData.light().copyWith(
       colorScheme: ColorScheme(
         brightness: Brightness.light,
-        surface: Color(0xFFf6f6f6),
-        onSurface: Colors.black87,
-        primary: Colors.black,
-        onPrimary: Color(0xFFf6f6f6),
-        onSurfaceVariant: Color(0xFFEEEEEE),
-        surfaceContainer: Colors.white,
-        error: Colors.redAccent,
+
+        primary: Color(0xFFD4A056), // Dourado premium
+        onPrimary: Colors.white, // Contraste no botão
+
+        secondary: Color(0xFF6D6D6D), // Cinza metálico
+        onSecondary: Colors.white,
+
+        surface: Color(0xFFFFFFFF), // Containers brancos
+        onSurface: Color(0xFF1A1A1A), // Texto escuro
+
+        surfaceContainer: Color(0xFFF5F5F5), // Fundo geral claro
+        onSurfaceVariant: Color(0xFFE0E0E0), // Bordas / divisores
+
+        error: Color(0xFFD32F2F),
         onError: Colors.white,
-        secondary: Colors.grey[700]!,
-        onSecondary: Colors.black,
       ),
+
+      scaffoldBackgroundColor: Color(0xFFF5F5F5),
+      cardColor: Colors.white,
+      appBarTheme: AppBarTheme(
+        backgroundColor: Colors.white,
+        foregroundColor: Color(0xFF1A1A1A),
+        elevation: 0,
+      ),
+      dividerColor: Color(0xFFE0E0E0),
     );
   }
 
   void toggleTheme() {
     _isDarkMode = !_isDarkMode;
-    Util.salvaDadosLocal('_isDarkMode', _isDarkMode ? 'true': 'false');
+    Util.salvaDadosLocal('_isDarkMode', _isDarkMode ? 'true' : 'false');
     notifyListeners();
   }
 

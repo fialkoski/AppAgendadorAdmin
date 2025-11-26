@@ -1,20 +1,40 @@
+import 'package:agendadoradmin/configurations/theme_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:universal_html/html.dart' as html;
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class LandingPageScreen extends StatelessWidget {
   const LandingPageScreen({super.key});
-  
 
   @override
   Widget build(BuildContext context) {
-    html.document.title = 'BarbeariaApp - Plataforma de Agendamento para Barbearias';
+    final theme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xFF181818), // fundo escuro
+      backgroundColor: theme.surfaceContainer,
       body: SingleChildScrollView(
         child: Column(
-          children: const [
+          children: [
+            Consumer<ThemeNotifier>(
+              builder: (context, themeNotifier, child) => ListTile(
+                leading: Icon(
+                  themeNotifier.isDarkMode ? Icons.wb_sunny : Icons.nights_stay,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                title: Text(
+                  'Tema ${themeNotifier.isDarkMode ? 'Claro' : 'Escuro'}',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.7),
+                  ),
+                ),
+                onTap: () {
+                  themeNotifier.toggleTheme();
+                },
+              ),
+            ),
             _TopBar(),
             _HeroSection(),
             _BenefitsSection(),
@@ -33,61 +53,54 @@ class _TopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context).colorScheme;
+    final themeNotifier = Provider.of<ThemeNotifier>(context);
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
-      color: const Color(0xFF232323), // barra escura
+      color: theme.surfaceContainer,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Logo e nome
           Row(
             children: [
               Image.asset(
-                "assets/img/logo.png",
+                themeNotifier.isDarkMode
+                    ? "assets/img/logo128.png"
+                    : "assets/img/logoClaro128.png",
                 height: 48,
               ),
               const SizedBox(width: 12),
               Text(
-                "BarbeariaApp",
+                "BarbeariaFácil",
                 style: GoogleFonts.montserrat(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: theme.onSurface,
                 ),
               ),
             ],
           ),
-          // Botões de ação
           Row(
             children: [
               TextButton(
-                onPressed: () {
-                  context.go('/login');
-                },
+                onPressed: () => context.go('/login'),
                 style: TextButton.styleFrom(
-                  foregroundColor: Colors.grey[200],
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  foregroundColor: theme.onSurface,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
                 ),
                 child: const Text("Entrar", style: TextStyle(fontSize: 16)),
               ),
               const SizedBox(width: 12),
               ElevatedButton(
-                onPressed: () {
-                   context.go('/cadastro');
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orangeAccent[700],
-                  foregroundColor: Colors.white,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  elevation: 0,
+                onPressed: () => context.go('/cadastro'),
+                child: const Text(
+                  "Cadastrar-se",
+                  style: TextStyle(fontSize: 16),
                 ),
-                child:
-                    const Text("Cadastrar-se", style: TextStyle(fontSize: 16)),
               ),
             ],
           ),
@@ -102,11 +115,13 @@ class _HeroSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context).colorScheme;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 80),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFF232323), Color(0xFF181818)],
+          colors: [theme.surface, theme.surfaceContainer],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -118,7 +133,7 @@ class _HeroSection extends StatelessWidget {
               "Transforme sua barbearia com tecnologia",
               textAlign: TextAlign.center,
               style: GoogleFonts.montserrat(
-                color: Colors.orangeAccent[700],
+                color: theme.primary,
                 fontSize: 40,
                 fontWeight: FontWeight.bold,
               ),
@@ -128,24 +143,16 @@ class _HeroSection extends StatelessWidget {
               "Gestão simples, agendamentos automáticos e mais clientes satisfeitos.",
               textAlign: TextAlign.center,
               style: GoogleFonts.openSans(
-                color: Colors.grey[300],
+                color: theme.onSurface.withValues(alpha: 0.7),
                 fontSize: 18,
               ),
             ),
             const SizedBox(height: 30),
             ElevatedButton(
-              onPressed: () {context.go('/cadastro');},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orangeAccent[700],
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 40, vertical: 18),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-              ),
+              onPressed: () => context.go('/cadastro'),
               child: const Text(
                 "Experimente grátis",
-                style: TextStyle(fontSize: 18, color: Colors.white),
+                style: TextStyle(fontSize: 18),
               ),
             ),
           ],
@@ -160,48 +167,47 @@ class _BenefitsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context).colorScheme;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 80),
-      color: Color(0xFF232323),
-      child: Center(
-        child: Column(
-          children: [
-            Text(
-              "Por que escolher nosso sistema?",
-              style: GoogleFonts.montserrat(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-                color: Colors.orangeAccent[700],
+      child: Column(
+        children: [
+          Text(
+            "Por que escolher nosso sistema?",
+            style: GoogleFonts.montserrat(
+              fontSize: 32,
+              fontWeight: FontWeight.bold,
+              color: theme.primary,
+            ),
+          ),
+          const SizedBox(height: 50),
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 40,
+            runSpacing: 40,
+            children: const [
+              _BenefitCard(
+                icon: Icons.schedule,
+                title: "Agendamento fácil",
+                text:
+                    "Seu cliente marca o horário pelo celular e você recebe tudo automaticamente, sem mensagens manuais.",
               ),
-            ),
-            const SizedBox(height: 50),
-            Wrap(
-              alignment: WrapAlignment.center,
-              spacing: 40,
-              runSpacing: 40,
-              children: const [
-                _BenefitCard(
-                  icon: Icons.schedule,
-                  title: "Agendamento fácil",
-                  text:
-                      "Seu cliente marca o horário pelo celular e você recebe tudo automaticamente, sem mensagens manuais.",
-                ),
-                _BenefitCard(
-                  icon: Icons.people_outline,
-                  title: "Fidelize clientes",
-                  text:
-                      "Envie lembretes automáticos e mantenha sua barbearia sempre na mente do seu cliente.",
-                ),
-                _BenefitCard(
-                  icon: Icons.attach_money,
-                  title: "Mais lucro, menos erro",
-                  text:
-                      "Evite horários vagos e organize sua equipe para atender mais clientes com eficiência.",
-                ),
-              ],
-            ),
-          ],
-        ),
+              _BenefitCard(
+                icon: Icons.people_outline,
+                title: "Fidelize clientes",
+                text:
+                    "Envie lembretes automáticos e mantenha sua barbearia sempre na mente do seu cliente.",
+              ),
+              _BenefitCard(
+                icon: Icons.attach_money,
+                title: "Mais lucro, menos erro",
+                text:
+                    "Evite horários vagos e organize sua equipe para atender mais clientes com eficiência.",
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -220,25 +226,30 @@ class _BenefitCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context).colorScheme;
+
     return SizedBox(
       width: 300,
       child: Column(
         children: [
-          Icon(icon, color: Colors.orangeAccent[700], size: 60),
+          Icon(icon, color: theme.primary, size: 60),
           const SizedBox(height: 20),
           Text(
             title,
             style: GoogleFonts.montserrat(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: theme.onSurface,
             ),
           ),
           const SizedBox(height: 10),
           Text(
             text,
             textAlign: TextAlign.center,
-            style: GoogleFonts.openSans(fontSize: 16, color: Colors.grey[400]),
+            style: GoogleFonts.openSans(
+              fontSize: 16,
+              color: theme.onSurface.withValues(alpha: 0.6),
+            ),
           ),
         ],
       ),
@@ -251,9 +262,10 @@ class _FeaturesSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context).colorScheme;
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 40),
-      decoration: const BoxDecoration(color: Color(0xFF181818)),
       child: Column(
         children: [
           Text(
@@ -262,7 +274,7 @@ class _FeaturesSection extends StatelessWidget {
             style: GoogleFonts.montserrat(
               fontSize: 32,
               fontWeight: FontWeight.bold,
-              color: Colors.orangeAccent[700],
+              color: theme.primary,
             ),
           ),
           const SizedBox(height: 50),
@@ -303,13 +315,12 @@ class _FeatureItem extends StatelessWidget {
   final String title;
   final String description;
 
-  const _FeatureItem({
-    required this.title,
-    required this.description,
-  });
+  const _FeatureItem({required this.title, required this.description});
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context).colorScheme;
+
     return SizedBox(
       width: 300,
       child: Column(
@@ -320,13 +331,16 @@ class _FeatureItem extends StatelessWidget {
             style: GoogleFonts.montserrat(
               fontSize: 20,
               fontWeight: FontWeight.w600,
-              color: Colors.white,
+              color: theme.onSurface,
             ),
           ),
           const SizedBox(height: 10),
           Text(
             description,
-            style: GoogleFonts.openSans(fontSize: 16, color: Colors.grey[400]),
+            style: GoogleFonts.openSans(
+              fontSize: 16,
+              color: theme.onSurface.withValues(alpha: 0.6),
+            ),
           ),
         ],
       ),
@@ -339,51 +353,45 @@ class _CallToActionSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context).colorScheme;
+
     return Container(
-        padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 40),
-        color: Colors.orangeAccent[700],
-        child: Center(
-          child: Column(
-            children: [
-              Text(
-                "Leve sua barbearia para o próximo nível!",
-                textAlign: TextAlign.center,
-                style: GoogleFonts.montserrat(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
+      padding: const EdgeInsets.symmetric(vertical: 100, horizontal: 40),
+      color: theme.primary,
+      child: Center(
+        child: Column(
+          children: [
+            Text(
+              "Leve sua barbearia para o próximo nível!",
+              textAlign: TextAlign.center,
+              style: GoogleFonts.montserrat(
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+                color: theme.onPrimary,
               ),
-              const SizedBox(height: 20),
-              Text(
-                "Comece hoje mesmo a usar o sistema que vai facilitar sua rotina e impressionar seus clientes.",
-                textAlign: TextAlign.center,
-                style: GoogleFonts.openSans(
-                  fontSize: 18,
-                  color: Colors.black,
-                ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              "Comece hoje mesmo a usar o sistema que vai facilitar sua rotina e impressionar seus clientes.",
+              textAlign: TextAlign.center,
+              style: GoogleFonts.openSans(
+                fontSize: 18,
+                color: theme.onPrimary.withValues(alpha: 0.9),
               ),
-              const SizedBox(height: 40),
-              ElevatedButton(
-                onPressed: () {
-                  context.go('/cadastro');
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                ),
-                child: const Text(
-                  "Criar conta grátis",
-                  style: TextStyle(fontSize: 18, color: Colors.white),
-                ),
+            ),
+            const SizedBox(height: 40),
+            ElevatedButton(
+              onPressed: () => context.go('/cadastro'),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.black),
+              child: const Text(
+                "Criar conta grátis",
+                style: TextStyle(fontSize: 18),
               ),
-            ],
-          ),
-        ));
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -392,13 +400,18 @@ class _FooterSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context).colorScheme;
+
     return Container(
       padding: const EdgeInsets.all(40),
       color: Colors.black,
       child: Center(
         child: Text(
-          "© ${DateTime.now().year} BarberApp — Simplificando o dia a dia da sua barbearia",
-          style: GoogleFonts.openSans(color: Colors.grey[500], fontSize: 14),
+          "© ${DateTime.now().year} BarbeariaFácil — Simplificando o dia a dia da sua barbearia",
+          style: GoogleFonts.openSans(
+            color: theme.onPrimary.withValues(alpha: 0.6),
+            fontSize: 14,
+          ),
         ),
       ),
     );

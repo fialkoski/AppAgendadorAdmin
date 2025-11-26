@@ -43,7 +43,7 @@ class _ButtonBarPadraoState extends State<ButtonBarPadrao> {
             onPressed: widget.isSaving ? null : widget.onDescartar,
             style: TextButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 22),
-              foregroundColor: _colorScheme.onSurface.withOpacity(0.8),
+              foregroundColor: _colorScheme.onSurface.withValues(alpha: 0.8),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
