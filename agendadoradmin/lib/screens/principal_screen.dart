@@ -1,13 +1,15 @@
+import 'dart:async';
+
 import 'package:agendadoradmin/configurations/theme_notifier.dart';
 import 'package:agendadoradmin/providers/empresa_provider.dart';
 import 'package:agendadoradmin/services/empresa_service.dart';
 import 'package:agendadoradmin/singleton/lista_empresa_singleton.dart';
 import 'package:agendadoradmin/singleton/usuario_singleton.dart';
+import 'package:agendadoradmin/tools/util_mensagem.dart';
 import 'package:agendadoradmin/tools/util_texto.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:universal_html/html.dart' as html;
 import 'package:dropdown_button2/dropdown_button2.dart';
 
 class PrincipalScreen extends StatefulWidget {
@@ -23,13 +25,11 @@ class _MainLayoutState extends State<PrincipalScreen> {
   final EmpresaService empresaService = EmpresaService();
   late var provider;
   bool _inicializado = false;
+  bool _carregandoEmpresas = false;
 
   @override
   void initState() {
     super.initState();
-    html.document.title =
-        'BarbeariaFácil - Plataforma de Agendamento para Barbearias';
-
     buscarListaEmpresa();
   }
 
@@ -59,22 +59,32 @@ class _MainLayoutState extends State<PrincipalScreen> {
     }
   }
 
-  void atualizarListaEmpresa() {
-    empresaService.buscarEmpresaPorUsuario().then((listaEmpresas) {
-      setState(() {
-        ListaEmpresaSingleton.instance.setListaEmpresa(listaEmpresas);
-      });
-
-      if (ListaEmpresaSingleton.instance.selectedEmpresaId == null) {
-        setState(() {
-          if (ListaEmpresaSingleton.instance.empresas.isNotEmpty) {
-            ListaEmpresaSingleton.instance.setSelectedEmpresaId(
-              ListaEmpresaSingleton.instance.empresas.first.id,
-            );
-          }
-        });
-      }
+  Future<void> atualizarListaEmpresa() async {
+    setState(() {
+      _carregandoEmpresas = true;
     });
+
+    try {
+      var listaEmpresas = await empresaService.buscarEmpresaPorUsuario();
+      ListaEmpresaSingleton.instance.setListaEmpresa(listaEmpresas);
+
+      if ((ListaEmpresaSingleton.instance.selectedEmpresaId ?? 0) == 0) {
+        if (ListaEmpresaSingleton.instance.empresas.isNotEmpty) {
+          ListaEmpresaSingleton.instance.setSelectedEmpresaId(
+            ListaEmpresaSingleton.instance.empresas.first.id,
+          );
+        }
+      }
+
+      setState(() {
+        _carregandoEmpresas = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _carregandoEmpresas = false);
+      UtilMensagem.showErro(context, "Falha ao buscar as empresas do usuário: $e");
+      context.go('/login');
+    }
   }
 
   @override
@@ -99,17 +109,19 @@ class _MainLayoutState extends State<PrincipalScreen> {
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
-                      color: colorScheme.surface, 
+                      color: colorScheme.surface,
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: theme.colorScheme.onSurfaceVariant, 
+                        color: theme.colorScheme.onSurfaceVariant,
                         width: 0.5,
                       ),
                     ),
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 300),
-                      child: widget.child,
-                    ), // conteúdo da agenda
+                    child: (_carregandoEmpresas)
+                        ? Center(child: CircularProgressIndicator())
+                        : AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 300),
+                            child: widget.child,
+                          ), // conteúdo da agenda
                   ),
                 ),
               ],
@@ -223,88 +235,94 @@ class _MainLayoutState extends State<PrincipalScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          if (ListaEmpresaSingleton.instance.empresas.isNotEmpty)
-            DropdownButtonHideUnderline(
-              child: DropdownButton2<int>(
-                isExpanded: true,
-                buttonStyleData: ButtonStyleData(
-                  elevation: 2,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  height: 80,
-                  width: 400,
-                  decoration: BoxDecoration(
-                    color: Colors.transparent,
-                    border: Border.all(color: Colors.transparent),
-                    borderRadius: BorderRadius.circular(8),
-                    boxShadow: const [],
-                  ),
-                ),
-                menuItemStyleData: const MenuItemStyleData(height: 60),
-                dropdownStyleData: DropdownStyleData(
-                  decoration: BoxDecoration(color: colorScheme.surface),
-                ),
-                items: ListaEmpresaSingleton.instance.empresas.map((empresa) {
-                  return DropdownMenuItem<int>(
-                    value: empresa.id,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "${empresa.nome} - ${UtilTexto.formatarCpfCnpj(empresa.cpfCnpj)}",
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        Text(
-                          empresa.endereco.enderecoCompleto(),
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
+          if (UsuarioSingleton.instance.usuario != null)
+            if ((ListaEmpresaSingleton.instance.empresas.isNotEmpty) &&
+                ((ListaEmpresaSingleton.instance.selectedEmpresaId ?? 0) > 0))
+              DropdownButtonHideUnderline(
+                child: DropdownButton2<int>(
+                  isExpanded: true,
+                  buttonStyleData: ButtonStyleData(
+                    elevation: 2,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    height: 80,
+                    width: 400,
+                    decoration: BoxDecoration(
+                      color: Colors.transparent,
+                      border: Border.all(color: Colors.transparent),
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: const [],
                     ),
-                  );
-                }).toList(),
-                value: ListaEmpresaSingleton.instance.selectedEmpresaId,
-                onChanged: (value) {
-                  setState(() {
-                    ListaEmpresaSingleton.instance.setSelectedEmpresaId(value!);
-                  });
-                  context.go('/dashboard');
-                },
-                selectedItemBuilder: (context) {
-                  return ListaEmpresaSingleton.instance.empresas.map((empresa) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "${empresa.nome} - ${UtilTexto.formatarCpfCnpj(empresa.cpfCnpj)}",
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
+                  ),
+                  menuItemStyleData: const MenuItemStyleData(height: 60),
+                  dropdownStyleData: DropdownStyleData(
+                    decoration: BoxDecoration(color: colorScheme.surface),
+                  ),
+                  items: ListaEmpresaSingleton.instance.empresas.map((empresa) {
+                    return DropdownMenuItem<int>(
+                      value: empresa.id,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "${empresa.nome} - ${UtilTexto.formatarCpfCnpj(empresa.cpfCnpj)}",
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        Text(
-                          empresa.endereco.enderecoCompleto(),
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: Colors.grey,
+                          Text(
+                            empresa.endereco.enderecoCompleto(),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
+                        ],
+                      ),
                     );
-                  }).toList();
-                },
+                  }).toList(),
+                  value: ListaEmpresaSingleton.instance.selectedEmpresaId,
+                  onChanged: (value) {
+                    setState(() {
+                      ListaEmpresaSingleton.instance.setSelectedEmpresaId(
+                        value!,
+                      );
+                    });
+                    context.go('/dashboard');
+                  },
+                  selectedItemBuilder: (context) {
+                    return ListaEmpresaSingleton.instance.empresas.map((
+                      empresa,
+                    ) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "${empresa.nome} - ${UtilTexto.formatarCpfCnpj(empresa.cpfCnpj)}",
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            empresa.endereco.enderecoCompleto(),
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: Colors.grey,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      );
+                    }).toList();
+                  },
+                ),
               ),
-            ),
           Spacer(),
           const SizedBox(width: 16),
           InkWell(
@@ -326,45 +344,52 @@ class _MainLayoutState extends State<PrincipalScreen> {
           const SizedBox(width: 16),
           Icon(Icons.person, size: 40, color: colorScheme.primary),
           const SizedBox(width: 4),
-          Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  UsuarioSingleton.instance.usuario!.nome,
-                  style: textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13,
+          if (UsuarioSingleton.instance.usuario != null)
+            Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    UsuarioSingleton.instance.usuario!.nome,
+                    style: textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  "Administrador",
-                  style: textTheme.bodySmall?.copyWith(
-                    color: colorScheme.onSurface,
-                    fontSize: 11,
+                  const SizedBox(height: 4),
+                  Text(
+                    "Administrador",
+                    style: textTheme.bodySmall?.copyWith(
+                      color: colorScheme.onSurface,
+                      fontSize: 11,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
           const SizedBox(width: 4),
-          InkWell(
-            borderRadius: BorderRadius.circular(20),
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                color: colorScheme.surface,
+          PopupMenuButton<String>(
+            icon: Icon(Icons.keyboard_arrow_down, color: colorScheme.primary),
+            onSelected: (value) {
+              if (value == 'sair') {
+                UsuarioSingleton.instance.clear();
+                ListaEmpresaSingleton.instance.clear();
+                context.go('/');
+              }
+            },
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: 'sair',
+                child: Row(
+                  children: [
+                    Icon(Icons.logout_outlined, color: colorScheme.primary),
+                    SizedBox(width: 8),
+                    Text('Sair'),
+                  ],
+                ),
               ),
-              child: Icon(
-                Icons.keyboard_arrow_down,
-                color: colorScheme.primary,
-                size: 24,
-              ),
-            ),
+            ],
           ),
         ],
       ),

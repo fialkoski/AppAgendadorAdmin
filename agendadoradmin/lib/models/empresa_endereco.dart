@@ -1,9 +1,9 @@
 class EmpresaEndereco {
-  final String rua;
-  final String numero;
-  final String bairro;
-  final String cidade;
-  final String cep;
+  String rua;
+  String numero;
+  String bairro;
+  String cidade;
+  String cep;
 
   EmpresaEndereco({
     required this.rua,

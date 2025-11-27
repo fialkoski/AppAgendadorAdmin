@@ -55,9 +55,7 @@ class UsuarioSingleton {
   bool tokenValido(){
     if (_token == null || _token!.isEmpty) {
       return false;
-    } else{
-      
-    }
+    } 
     return true;
   }
 }

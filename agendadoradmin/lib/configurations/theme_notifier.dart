@@ -6,7 +6,13 @@ class ThemeNotifier extends ChangeNotifier with WidgetsBindingObserver {
 
   ThemeNotifier() {
     WidgetsBinding.instance.addObserver(this);
-    _isDarkMode = Util.buscarDadosLocal('_isDarkMode').toString() == 'true';
+    buscarTemaBanco();
+  }
+
+  void buscarTemaBanco() async {
+    String valorbanco = await Util.buscarDadosLocal('_isDarkMode');
+    _isDarkMode = (valorbanco != 'false');
+    notifyListeners();
   }
 
   bool get isDarkMode => _isDarkMode;

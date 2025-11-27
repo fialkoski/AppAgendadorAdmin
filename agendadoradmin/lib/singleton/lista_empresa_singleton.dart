@@ -60,6 +60,8 @@ class ListaEmpresaSingleton {
   /// Limpa os dados (logout)
   Future<void> clear() async {
     _empresas = [];
+    setSelectedEmpresaId(0);
+    salvarListaEmpresaUsuarioLocal();
   }
 
   ///Empresa

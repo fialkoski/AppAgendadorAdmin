@@ -11,16 +11,16 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await UsuarioSingleton.instance.carregarUsuario();
 
+  // Redirecionamentos só após o frame inicial
   ApiService.onRedirecionamento = () {
-    Future.microtask(() => RotasConfig.getRouter().go('/login'));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      RotasConfig.getRouter().go('/login');
+    });
   };
-  
+
   runApp(
     MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-            create: (_) => EmpresaProvider()..adicionarEmpresa()),
-      ],
+      providers: [ChangeNotifierProvider(create: (_) => EmpresaProvider())],
       child: ChangeNotifierProvider(
         create: (_) => ThemeNotifier(),
         child: const MyApp(),
@@ -29,30 +29,48 @@ Future<void> main() async {
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+
+    // Chamada da empresa após o primeiro frame para evitar erro
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<EmpresaProvider>().adicionarEmpresa();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final themeNotifier = Provider.of<ThemeNotifier>(context);
+    return Consumer<ThemeNotifier>(
+      builder: (context, themeNotifier, child) {
+        return MaterialApp.router(
+          locale: const Locale('pt', 'BR'),
 
-    return MaterialApp.router(
-       locale: const Locale('pt', 'BR'),
+          supportedLocales: const [Locale('pt', 'BR')],
 
-      supportedLocales: const [
-        Locale('pt', 'BR'),
-      ],
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
 
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      debugShowCheckedModeBanner: false,
-      theme: themeNotifier.themeClaro(),
-      darkTheme: themeNotifier.themeDark(),
-      themeMode: themeNotifier.isDarkMode ? ThemeMode.dark : ThemeMode.light,
-      routerConfig: RotasConfig.getRouter(),
+          debugShowCheckedModeBanner: false,
+          theme: themeNotifier.themeClaro(),
+          darkTheme: themeNotifier.themeDark(),
+          themeMode: themeNotifier.isDarkMode
+              ? ThemeMode.dark
+              : ThemeMode.light,
+          routerConfig: RotasConfig.getRouter(),
+        );
+      },
     );
   }
 }

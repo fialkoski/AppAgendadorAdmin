@@ -9,10 +9,8 @@ class LandingPageScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context).colorScheme;
-
     return Scaffold(
-      backgroundColor: theme.surfaceContainer,
+      backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
       body: SingleChildScrollView(
         child: Column(
           children: [
