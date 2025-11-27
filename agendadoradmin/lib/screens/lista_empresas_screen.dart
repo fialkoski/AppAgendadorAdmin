@@ -42,7 +42,7 @@ class _ListaEmpresasScreenState extends State<ListaEmpresasScreen> {
     if (!mounted) return const SizedBox.shrink();
 
     return Scaffold(
-      backgroundColor: _colorScheme.surface,
+      backgroundColor: Colors.transparent,
       appBar: AppBarPadrao(
           icon: null,
           title: 'Empresas',

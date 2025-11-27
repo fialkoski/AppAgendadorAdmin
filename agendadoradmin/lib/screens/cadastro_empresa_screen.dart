@@ -127,7 +127,8 @@ class _CadastroEmpresaScreenState extends State<CadastroEmpresaScreen> {
     if (!mounted) return const SizedBox.shrink();
 
     return Scaffold(
-      backgroundColor: _colorScheme.surfaceContainer,
+      backgroundColor: Colors
+                          .transparent,
       appBar: AppBarPadrao(
         icon: Icons.apartment,
         title: 'Cadastro de empresa',
@@ -299,7 +300,7 @@ class _CadastroEmpresaScreenState extends State<CadastroEmpresaScreen> {
       decoration: InputDecoration(
         prefixIcon: Icon(icon, color: colorScheme.primary),
         labelText: label,
-        labelStyle: TextStyle(color: colorScheme.onSurface.withOpacity(0.7)),
+        labelStyle: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.7)),
         filled: true,
         fillColor: colorScheme.surfaceContainerHighest,
         border: OutlineInputBorder(

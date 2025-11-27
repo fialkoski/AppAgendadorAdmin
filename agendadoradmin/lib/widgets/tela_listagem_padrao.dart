@@ -38,8 +38,12 @@ class _TelaListagemPadraoState extends State<TelaListagemPadrao> {
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
-                  color: _colorScheme.surfaceContainer,
+                  color: _colorScheme.surface,
                   borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                        color: _colorScheme.onSurfaceVariant, 
+                        width: 0.5,
+                      ),
                 ),
                 padding: const EdgeInsets.symmetric(
                   horizontal: 20,

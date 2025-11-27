@@ -173,7 +173,7 @@ class _ListaProfissionaisScreenState extends State<ListaProfissionaisScreen> {
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.surface,
+      backgroundColor: Colors.transparent,
       appBar: AppBarPadrao(
           icon: null,
           title: 'Profissionais',

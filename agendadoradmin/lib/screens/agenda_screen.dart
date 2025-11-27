@@ -66,71 +66,84 @@ class _AgendaScreenState extends State<AgendaScreen> {
   }
 
   Widget seletorData(BuildContext context) {
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      // Botão voltar dia
-      IconButton(
-        icon: Icon(Icons.arrow_left, size: 40,color: Theme.of(context).colorScheme.primary),
-        onPressed: () {
-          setState(() {
-            dataSelecionada = dataSelecionada.subtract(const Duration(days: 1));
-          });
-          carregarAgenda();
-        },
-      ),
-
-      // Data clicável abre calendário
-      InkWell(
-        onTap: () async {
-          final DateTime? selecionada = await showDatePicker(
-            context: context,
-            initialDate: dataSelecionada,
-            firstDate: DateTime(2020),
-            lastDate: DateTime(2035),
-          );
-
-          if (selecionada != null) {
-            setState(() => dataSelecionada = selecionada);
-            carregarAgenda();
-          }
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        // Botão voltar dia
+        IconButton(
+          icon: Icon(
+            Icons.arrow_left,
+            size: 60,
+            color: Theme.of(context).colorScheme.primary,
           ),
-          child: Text(
-            "${dataSelecionada.day.toString().padLeft(2, '0')}-"
-            "${dataSelecionada.month.toString().padLeft(2, '0')}-"
-            "${dataSelecionada.year}",
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
+          onPressed: () {
+            setState(() {
+              dataSelecionada = dataSelecionada.subtract(
+                const Duration(days: 1),
+              );
+            });
+            carregarAgenda();
+          },
+        ),
+
+        // Data clicável abre calendário
+        InkWell(
+          onTap: () async {
+            final DateTime? selecionada = await showDatePicker(
+              //context: context,
+              context: Navigator.of(context, rootNavigator: true).context,
+              initialDate: dataSelecionada,
+              firstDate: DateTime(2020),
+              lastDate: DateTime(2035),
+              locale: Locale('pt', 'BR'),
+              helpText: '',
+              cancelText: 'Cancelar',
+              confirmText: 'Confirmar',
+            );
+
+            if (selecionada != null) {
+              setState(() => dataSelecionada = selecionada);
+              carregarAgenda();
+            }
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(20),
+              //border: Border.all(color: Colors.black12),
+            ),
+            child: Text(
+              "${dataSelecionada.day.toString().padLeft(2, '0')}-"
+              "${dataSelecionada.month.toString().padLeft(2, '0')}-"
+              "${dataSelecionada.year}",
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ),
         ),
-      ),
 
-      // Botão avançar dia
-      IconButton(
-        icon: Icon(Icons.arrow_right, size: 40, color: Theme.of(context).colorScheme.primary),
-        onPressed: () {
-          setState(() {
-            dataSelecionada = dataSelecionada.add(const Duration(days: 1));
-          });
-          carregarAgenda();
-        },
-      ),
-    ],
-  );
-}
-
+        // Botão avançar dia
+        IconButton(
+          icon: Icon(
+            Icons.arrow_right,
+            size: 60,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          onPressed: () {
+            setState(() {
+              dataSelecionada = dataSelecionada.add(const Duration(days: 1));
+            });
+            carregarAgenda();
+          },
+        ),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surfaceContainer,
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.only(left: 32, right: 32, bottom: 32),
@@ -139,6 +152,7 @@ class _AgendaScreenState extends State<AgendaScreen> {
               constraints: const BoxConstraints(maxWidth: 1200),
               child: Column(
                 children: [
+                  SizedBox(height: 16),
                   seletorData(context),
                   // Barra de barbeiros
                   SizedBox(

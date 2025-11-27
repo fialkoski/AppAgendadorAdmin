@@ -83,7 +83,7 @@ class _MainLayoutState extends State<PrincipalScreen> {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.surface,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Row(
         children: [
           _menuLateral(),
@@ -93,16 +93,23 @@ class _MainLayoutState extends State<PrincipalScreen> {
                 Container(
                   height: 80,
                   alignment: Alignment.center,
+                  color: theme.scaffoldBackgroundColor,
                   child: _menuSuperior(),
                 ),
                 Expanded(
                   child: Container(
-                    color: Colors.grey[50],
-                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: colorScheme.surface, 
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: theme.colorScheme.onSurfaceVariant, 
+                        width: 0.5,
+                      ),
+                    ),
                     child: AnimatedSwitcher(
                       duration: const Duration(milliseconds: 300),
                       child: widget.child,
-                    ),
+                    ), // conteúdo da agenda
                   ),
                 ),
               ],
@@ -118,12 +125,12 @@ class _MainLayoutState extends State<PrincipalScreen> {
     final colorScheme = theme.colorScheme;
     final themeNotifier = Provider.of<ThemeNotifier>(context);
     return MouseRegion(
-       //onEnter: (_) => setState(() => _isCollapsed = false),
-       //onExit: (_) => setState(() => _isCollapsed = true),
+      //onEnter: (_) => setState(() => _isCollapsed = false),
+      //onExit: (_) => setState(() => _isCollapsed = true),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         width: _isCollapsed ? 70 : 230,
-        color: colorScheme.surface,
+        color: theme.scaffoldBackgroundColor,
         child: Column(
           children: [
             Padding(
@@ -132,7 +139,7 @@ class _MainLayoutState extends State<PrincipalScreen> {
                 height: 60,
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainer,
+                  color: colorScheme.surface,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Row(

@@ -174,7 +174,7 @@ class _CadastroProfissionalScreenState
     if (!mounted) return const SizedBox.shrink();
 
     return Scaffold(
-      backgroundColor: _colorScheme.surfaceContainer,
+      backgroundColor: Colors.transparent,
       appBar: AppBarPadrao(
         icon: Icons.apartment,
         title: 'Profissionais',

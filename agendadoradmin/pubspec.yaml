@@ -27,6 +27,8 @@ dependencies:
   intl: ^0.20.1
   fluttertoast: ^8.2.8
   cpf_cnpj_validator: ^2.0.0
+  flutter_localizations:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:

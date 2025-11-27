@@ -42,7 +42,7 @@ class _ListaServicosScreenState extends State<ListaServicosScreen> {
     if (!mounted) return const SizedBox.shrink();
 
     return Scaffold(
-      backgroundColor: _colorScheme.surface,
+      backgroundColor: Colors.transparent,
       appBar: AppBarPadrao(
           icon: null,
           title: 'Serviços',

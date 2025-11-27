@@ -176,7 +176,7 @@ class _CadastroProfissionalAgendaScreenState
         .toList();
 
     return Scaffold(
-      backgroundColor: _colorScheme.surfaceContainer,
+      backgroundColor: Colors.transparent,
       appBar: AppBarPadrao(
         icon: Icons.apartment,
         title: 'Agenda do ${widget.profissionalEdicao?.nome}',
