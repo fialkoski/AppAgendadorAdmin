@@ -7,6 +7,8 @@ import 'package:agendadoradmin/singleton/lista_empresa_singleton.dart';
 
 class ServicoService {
   Future<List<Servico>> buscarListaServicos() async {
+    if (ListaEmpresaSingleton.instance.empresa == null) return [];
+
     return ApiService.buscarLista<Servico>(
       '/api/${ListaEmpresaSingleton.instance.empresa!.id}/servicos',
       Servico.fromJson,
@@ -14,6 +16,10 @@ class ServicoService {
   }
 
   Future<String> salvarServico(Servico servico) async {
+    if (ListaEmpresaSingleton.instance.empresa == null) {
+      throw Exception("Nenhuma empresa selecionada!");
+    }
+
     final response = await ApiService.post(
       '/api/${ListaEmpresaSingleton.instance.empresa!.id}/servicos',
       servico.toJson(),
@@ -28,6 +34,10 @@ class ServicoService {
   }
 
   Future<String> atualizarServico(Servico servico) async {
+    if (ListaEmpresaSingleton.instance.empresa == null) {
+      throw Exception("Nenhuma empresa selecionada!");
+    }
+    
     final response = await ApiService.put(
       '/api/${ListaEmpresaSingleton.instance.empresa!.id}/servicos/${servico.id}',
       servico.toJson(),

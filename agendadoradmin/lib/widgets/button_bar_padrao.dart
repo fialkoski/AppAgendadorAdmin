@@ -34,7 +34,7 @@ class _ButtonBarPadraoState extends State<ButtonBarPadrao> {
     if (!mounted) return const SizedBox.shrink();
 
     return Padding(
-      padding: const EdgeInsets.only(top: 32, right: 32, bottom: 32),
+      padding: const EdgeInsets.only(top: 24, right: 32, bottom: 24),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [

@@ -48,7 +48,9 @@ class ListaEmpresaSingleton {
 
     if (jsonStringListaEmpresa.isNotEmpty) {
       final List decoded = jsonDecode(jsonStringListaEmpresa);
-      List<Empresa> empresasBanco = decoded.map((e) => Empresa.fromJson(e)).toList();
+      List<Empresa> empresasBanco = decoded
+          .map((e) => Empresa.fromJson(e))
+          .toList();
       _empresas.addAll(empresasBanco);
 
       _selectedEmpresaId = int.tryParse(
@@ -75,6 +77,7 @@ class ListaEmpresaSingleton {
 
   Empresa? get empresa {
     int? index = _empresas.indexWhere((e) => e.id == _selectedEmpresaId);
+    if (index == -1) return null;
     return _empresas[index];
   }
 }

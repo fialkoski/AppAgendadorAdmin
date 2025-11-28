@@ -79,10 +79,18 @@ class _MainLayoutState extends State<PrincipalScreen> {
       setState(() {
         _carregandoEmpresas = false;
       });
+
+      if (ListaEmpresaSingleton.instance.empresas.isEmpty) {
+        if (!mounted) return;
+        context.go('/empresas/cadastro');
+      }
     } catch (e) {
       if (!mounted) return;
       setState(() => _carregandoEmpresas = false);
-      UtilMensagem.showErro(context, "Falha ao buscar as empresas do usuário: $e");
+      UtilMensagem.showErro(
+        context,
+        "Falha ao buscar as empresas do usuário: $e",
+      );
       context.go('/login');
     }
   }
@@ -411,7 +419,13 @@ class _MainLayoutState extends State<PrincipalScreen> {
     final inactiveColor = colorScheme.onSurface.withValues(alpha: 0.7);
 
     return InkWell(
-      onTap: () => context.go(route),
+      onTap: () {
+        if (ListaEmpresaSingleton.instance.empresas.isEmpty) {
+          UtilMensagem.showErro(context, "Você ainda não possui nenhuma barbearia cadastrada!");
+          return;
+        }
+        context.go(route);
+      },
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 4),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),

@@ -98,19 +98,19 @@ class _CadastroEmpresaScreenState extends State<CadastroEmpresaScreen> {
         await empresaService.salvarEmpresa(empresa);
 
         if (!mounted) return;
-        UtilMensagem.showSucesso(context, "Empresa cadastrada com sucesso!");
+        UtilMensagem.showSucesso(context, "Empresa cadastrada com sucesso.");
 
         final provider = context.read<EmpresaProvider>();
         provider.adicionarEmpresa();
 
         setState(() => _isLoading = false);
 
-        if (mounted) context.go('/profissionais');
+        if (mounted) context.go('/servicos/cadastro');
       } else {
         await empresaService.atualizarEmpresa(empresa);
 
         if (!mounted) return;
-        UtilMensagem.showSucesso(context, "Empresa atualizada com sucesso!");
+        UtilMensagem.showSucesso(context, "Empresa atualizada com sucesso.");
 
         setState(() => _isLoading = false);
       }

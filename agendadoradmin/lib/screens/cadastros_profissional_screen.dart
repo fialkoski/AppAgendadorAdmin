@@ -1,3 +1,4 @@
+import 'package:agendadoradmin/configurations/theme_notifier.dart';
 import 'package:agendadoradmin/models/profissional.dart';
 import 'package:agendadoradmin/models/profissional_servico.dart';
 import 'package:agendadoradmin/services/profissional_service.dart';
@@ -10,12 +11,13 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cpf_cnpj_validator/cpf_validator.dart';
 import 'package:cpf_cnpj_validator/cnpj_validator.dart';
+import 'package:provider/provider.dart';
 
 class CadastroProfissionalScreen extends StatefulWidget {
   final VoidCallback? onPressed;
-  final Profissional? profissionalEdicao;
+  Profissional? profissionalEdicao;
 
-  const CadastroProfissionalScreen({
+  CadastroProfissionalScreen({
     super.key,
     this.onPressed,
     this.profissionalEdicao,
@@ -98,6 +100,8 @@ class _CadastroProfissionalScreenState
           prof,
         );
 
+        widget.profissionalEdicao = profissionalSalvo;
+
         if (listaProfissionalServicosDeletar.isNotEmpty) {
           listaProfissionalServicosDeletar.forEach((item) {
             item.idProfissional = profissionalSalvo.id!;
@@ -126,12 +130,11 @@ class _CadastroProfissionalScreenState
         );
 
         setState(() => _isLoading = false);
-
-        if (mounted) context.go('/profissionais');
       } else {
         var profissionalSalvo = await profissionalService.atualizarProfissional(
           prof,
         );
+        widget.profissionalEdicao = profissionalSalvo;
 
         if (listaProfissionalServicosDeletar.isNotEmpty) {
           listaProfissionalServicosDeletar.forEach((item) {
@@ -173,14 +176,23 @@ class _CadastroProfissionalScreenState
   Widget build(BuildContext context) {
     if (!mounted) return const SizedBox.shrink();
 
+    final themeNotifier = Provider.of<ThemeNotifier>(context);
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBarPadrao(
-        icon: Icons.apartment,
-        title: 'Profissionais',
+        icon: Icons.person,
+        title: 'Cadastro de Profissional',
         subtitle: 'Gerencie todas os profissionais cadastrados na plataforma.',
         tituloBotao: 'Editar Agenda',
         onPressed: () {
+          if (widget.profissionalEdicao == null) {
+            UtilMensagem.showErro(
+              context,
+              "Finalize o cadastro do profissional para liberar a edição da agenda.",
+            );
+            return;
+          }
           context.go(
             '/profissionais/cadastroagenda',
             extra: widget.profissionalEdicao,
@@ -232,7 +244,7 @@ class _CadastroProfissionalScreenState
                     _buildTextField(
                       controller: _nomeController,
                       label: "Nome do Profissional",
-                      icon: Icons.business,
+                      icon: Icons.person,
                       colorScheme: _colorScheme,
                       validador: (v) => v == null || v.isEmpty || v.length < 3
                           ? 'Preencha o campo "Nome do Profissional"'
@@ -258,6 +270,16 @@ class _CadastroProfissionalScreenState
                       child: Text("Lista de Serviços"),
                     ),
                     const SizedBox(height: 12),
+                    if (listaProfissionalServicos.isEmpty)
+                      const SizedBox(height: 48),
+                    if (listaProfissionalServicos.isEmpty)
+                      Center(
+                        child: Text(
+                          'Nenhum serviço cadastrado.',
+                          style: TextStyle(color: _colorScheme.onSurface),
+                        ),
+                      ),
+
                     ListView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
@@ -266,6 +288,9 @@ class _CadastroProfissionalScreenState
                         final item = listaProfissionalServicos[index];
 
                         return Card(
+                          color: themeNotifier.isDarkMode
+                          ? _colorScheme.surfaceContainerHighest.withValues(alpha: 0.3)
+                          : _colorScheme.surfaceContainerHighest.withValues(alpha: 0.85),
                           child: Padding(
                             padding: const EdgeInsets.all(12.0),
                             child: Row(
@@ -274,7 +299,7 @@ class _CadastroProfissionalScreenState
                                 Checkbox(
                                   value: item.habilitado == 1,
                                   side: BorderSide(
-                                    color: Colors.black, // borda
+                                    color: _colorScheme.onSurface.withValues(alpha: 0.8), // borda
                                     width: 2,
                                   ),
                                   onChanged: (value) {
@@ -344,7 +369,9 @@ class _CadastroProfissionalScreenState
       decoration: InputDecoration(
         prefixIcon: Icon(icon, color: colorScheme.primary),
         labelText: label,
-        labelStyle: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.7)),
+        labelStyle: TextStyle(
+          color: colorScheme.onSurface.withValues(alpha: 0.7),
+        ),
         filled: true,
         fillColor: colorScheme.surfaceContainerHighest,
         border: OutlineInputBorder(

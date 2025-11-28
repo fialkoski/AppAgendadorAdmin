@@ -8,7 +8,7 @@ class UtilMensagem {
   }) async {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(mensagem),
+        content: Text(mensagem, style: TextStyle(color: Colors.white)),
         action: (onPressed == null)
             ? null
             : SnackBarAction(label: 'Ver detalhes', onPressed: onPressed),
@@ -29,7 +29,7 @@ class UtilMensagem {
   }) async {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(mensagem),
+        content: Text(mensagem, style: TextStyle(color: Colors.white),),
         action: (onPressed == null)
             ? null
             : SnackBarAction(label: 'Ver detalhes', onPressed: onPressed),

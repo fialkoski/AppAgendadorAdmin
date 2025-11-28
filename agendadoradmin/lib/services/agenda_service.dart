@@ -11,6 +11,8 @@ class AgendaService {
     int idProfissional,
     DateTime dataSelecionada,
   ) async {
+    if (ListaEmpresaSingleton.instance.empresa == null) return [];
+    
     String formatada =
         "${dataSelecionada.year.toString().padLeft(4, '0')}-"
         "${dataSelecionada.month.toString().padLeft(2, '0')}-"

@@ -11,6 +11,8 @@ import 'package:http/http.dart' as http;
 
 class ProfissionalService {
   Future<List<Profissional>> buscarListaProfissionais() async {
+    if (ListaEmpresaSingleton.instance.empresa == null) return [];
+
     return ApiService.buscarLista<Profissional>(
       '/api/${ListaEmpresaSingleton.instance.empresa!.id}/profissionais',
       Profissional.fromJson,
@@ -25,6 +27,10 @@ class ProfissionalService {
   }
 
   Future<Profissional> salvarProfissional(Profissional profissional) async {
+    if (ListaEmpresaSingleton.instance.empresa == null) {
+      throw Exception("Nenhuma empresa selecionada!");
+    }
+
     final response = await ApiService.post(
       '/api/${ListaEmpresaSingleton.instance.empresa!.id}/profissionais',
       profissional.toJson(),
@@ -39,6 +45,10 @@ class ProfissionalService {
   }
 
   Future<Profissional> atualizarProfissional(Profissional profissional) async {
+    if (ListaEmpresaSingleton.instance.empresa == null) {
+      throw Exception("Nenhuma empresa selecionada!");
+    }
+    
     final response = await ApiService.put(
       '/api/${ListaEmpresaSingleton.instance.empresa!.id}/profissionais/${profissional.id}',
       profissional.toJson(),

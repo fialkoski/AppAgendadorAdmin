@@ -103,8 +103,8 @@ class _CadastroServicoScreenState extends State<CadastroServicoScreen> {
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBarPadrao(
-        icon: Icons.apartment,
-        title: 'Serviços',
+        icon: Icons.content_cut,
+        title: 'Cadastro de Serviço',
         subtitle: 'Gerencie todas os serviços cadastrados na plataforma.',
         tituloBotao: '',
         onPressed: () {},
@@ -152,7 +152,7 @@ class _CadastroServicoScreenState extends State<CadastroServicoScreen> {
                     _buildTextField(
                       controller: _descricaoController,
                       label: "Descrição do Serviço",
-                      icon: Icons.business,
+                      icon: Icons.content_cut,
                       colorScheme: _colorScheme,
                       validador: (v) => v == null || v.isEmpty || v.length < 3
                           ? 'Preencha o campo "Descrição do Serviço"'
@@ -163,7 +163,7 @@ class _CadastroServicoScreenState extends State<CadastroServicoScreen> {
                     _buildTextField(
                       controller: _tempoController,
                       label: "Tempo Estimado em minutos(ex: 40)",
-                      icon: Icons.email_outlined,
+                      icon: Icons.access_time,
                       keyboardType: TextInputType.number,
                       colorScheme: _colorScheme,
                       validador: (v) {
@@ -177,7 +177,7 @@ class _CadastroServicoScreenState extends State<CadastroServicoScreen> {
                     _buildTextField(
                       controller: _precoController,
                       label: "Preço",
-                      icon: Icons.email_outlined,
+                      icon: Icons.attach_money_rounded,
                       keyboardType: TextInputType.number,
                       colorScheme: _colorScheme,
                       validador: (v) {

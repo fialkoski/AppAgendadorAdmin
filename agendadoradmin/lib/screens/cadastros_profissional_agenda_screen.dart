@@ -1,3 +1,4 @@
+import 'package:agendadoradmin/configurations/theme_notifier.dart';
 import 'package:agendadoradmin/models/profissional.dart';
 import 'package:agendadoradmin/models/profissional_horario.dart';
 import 'package:agendadoradmin/services/profissional_horario_service.dart';
@@ -8,6 +9,7 @@ import 'package:agendadoradmin/widgets/button_bar_padrao.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 
 class CadastroProfissionalAgendaScreen extends StatefulWidget {
   final VoidCallback? onPressed;
@@ -171,6 +173,8 @@ class _CadastroProfissionalAgendaScreenState
   Widget build(BuildContext context) {
     if (!mounted) return const SizedBox.shrink();
 
+    final themeNotifier = Provider.of<ThemeNotifier>(context);
+
     final listaProfissionalHorariosDiaSelecionado = profissionalHorarios
         .where((horario) => horario.diaSemana == diaSelecionado)
         .toList();
@@ -178,7 +182,7 @@ class _CadastroProfissionalAgendaScreenState
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBarPadrao(
-        icon: Icons.apartment,
+        icon: Icons.calendar_month,
         title: 'Agenda do ${widget.profissionalEdicao?.nome}',
         subtitle:
             'Gerencie toda a agenda do profissional cadastrado na plataforma.',
@@ -238,7 +242,7 @@ class _CadastroProfissionalAgendaScreenState
                             label: 'Horário do inicio do intervalo',
                             icon: Icons.access_time,
                             colorScheme: _colorScheme,
-                            obrigatorio: false
+                            obrigatorio: false,
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -249,7 +253,7 @@ class _CadastroProfissionalAgendaScreenState
                             label: 'Horário do final do intervalo',
                             icon: Icons.access_time,
                             colorScheme: _colorScheme,
-                            obrigatorio: false
+                            obrigatorio: false,
                           ),
                         ),
                       ],
@@ -294,8 +298,8 @@ class _CadastroProfissionalAgendaScreenState
                               horizontal: 28,
                               vertical: 22,
                             ),
-                            foregroundColor: _colorScheme.onSurface.withValues(alpha:
-                              0.8,
+                            foregroundColor: _colorScheme.onSurface.withValues(
+                              alpha: 0.8,
                             ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
@@ -317,6 +321,15 @@ class _CadastroProfissionalAgendaScreenState
                       },
                     ),
                     const SizedBox(height: 16),
+                    if (listaProfissionalHorariosDiaSelecionado.isEmpty)
+                      const SizedBox(height: 48),
+                    if (listaProfissionalHorariosDiaSelecionado.isEmpty)
+                      Center(
+                        child: Text(
+                          'Nenhum horário cadastrado para esse dia da semana.',
+                          style: TextStyle(color: _colorScheme.onSurface),
+                        ),
+                      ),
                     ListView.builder(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
@@ -326,10 +339,12 @@ class _CadastroProfissionalAgendaScreenState
                             listaProfissionalHorariosDiaSelecionado[index];
 
                         return Card(
+                          color: themeNotifier.isDarkMode
+                          ? _colorScheme.surfaceContainerHighest.withValues(alpha: 0.3)
+                          : _colorScheme.surfaceContainerHighest.withValues(alpha: 0.85),
                           child: Padding(
                             padding: const EdgeInsets.all(12.0),
                             child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(item.hora, style: TextStyle(fontSize: 20)),
                                 Spacer(),
@@ -341,9 +356,7 @@ class _CadastroProfissionalAgendaScreenState
                                   onSelected: (value) {
                                     if (value == 'remover') {
                                       setState(() {
-
                                         profissionalHorariosDeletar.add(item);
-
                                         profissionalHorarios.removeWhere(
                                           (test) =>
                                               test.diaSemana ==
@@ -352,7 +365,6 @@ class _CadastroProfissionalAgendaScreenState
                                               test.idProfissional ==
                                                   item.idProfissional,
                                         );
-
                                         profissionalHorariosSalvar.removeWhere(
                                           (test) =>
                                               test.diaSemana ==
@@ -361,7 +373,6 @@ class _CadastroProfissionalAgendaScreenState
                                               test.idProfissional ==
                                                   item.idProfissional,
                                         );
-
                                         listaProfissionalHorariosDiaSelecionado
                                             .removeWhere(
                                               (test) =>
@@ -430,17 +441,21 @@ class _CadastroProfissionalAgendaScreenState
           );
         }),
       ],
-      validator: (obrigatorio) ? (v) {
-        if (v == null || v.isEmpty) return 'Preencha o campo "$label"';
-        final regex = RegExp(r'^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$');
-        if (!regex.hasMatch(v)) return 'Horário inválido';
-        return null;
-      } : null,
+      validator: (obrigatorio)
+          ? (v) {
+              if (v == null || v.isEmpty) return 'Preencha o campo "$label"';
+              final regex = RegExp(r'^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$');
+              if (!regex.hasMatch(v)) return 'Horário inválido';
+              return null;
+            }
+          : null,
       style: TextStyle(color: colorScheme.onSurface),
       decoration: InputDecoration(
         prefixIcon: Icon(icon, color: colorScheme.primary),
         labelText: label,
-        labelStyle: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.7)),
+        labelStyle: TextStyle(
+          color: colorScheme.onSurface.withValues(alpha: 0.7),
+        ),
         filled: true,
         fillColor: colorScheme.surfaceContainerHighest,
         border: OutlineInputBorder(
@@ -475,36 +490,52 @@ class _DiasSemanaSelectorState extends State<DiasSemanaSelector> {
     'Sexta',
     'Sábado',
   ];
+
   int diaSelecionado = 2;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final color = theme.colorScheme;
+
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
         children: dias.asMap().entries.map((entry) {
           int index = entry.key;
           String dia = entry.value;
-          bool selecionado = diaSelecionado == index+1;
+          bool selecionado = diaSelecionado == index + 1;
 
           return GestureDetector(
             onTap: () {
-              setState(() => diaSelecionado = index+1);
+              setState(() => diaSelecionado = index + 1);
               widget.onDiaSelecionado?.call(diaSelecionado);
             },
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 150),
+              margin: const EdgeInsets.only(right: 8),
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               decoration: BoxDecoration(
-                color: selecionado ? Colors.white : Colors.grey.shade200,
-                borderRadius: BorderRadius.circular(8),
+                color: selecionado ? color.primary : color.surface,
+                borderRadius: BorderRadius.circular(10),
+                border: selecionado
+                    ? null
+                    : Border.all(color: color.outlineVariant),
+                boxShadow: selecionado
+                    ? [
+                        BoxShadow(
+                          color: color.primary.withValues(alpha: 0.25),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ]
+                    : null,
               ),
               child: Text(
                 dia,
-                style: TextStyle(
-                  color: selecionado ? Colors.black : Colors.grey.shade600,
-                  fontWeight: selecionado ? FontWeight.bold : FontWeight.w400,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: selecionado ? color.onPrimary : color.onSurface,
+                  fontWeight: selecionado ? FontWeight.bold : FontWeight.w500,
                 ),
               ),
             ),
