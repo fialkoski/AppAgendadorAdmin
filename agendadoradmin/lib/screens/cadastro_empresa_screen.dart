@@ -6,6 +6,7 @@ import 'package:agendadoradmin/tools/util_mensagem.dart';
 import 'package:agendadoradmin/tools/util_texto.dart';
 import 'package:agendadoradmin/widgets/app_bar_padrao.dart';
 import 'package:agendadoradmin/widgets/button_bar_padrao.dart';
+import 'package:agendadoradmin/widgets/textfield_padrao.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -176,31 +177,31 @@ class _CadastroEmpresaScreenState extends State<CadastroEmpresaScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    _buildTextField(
+                    TextFieldPadrao(
                       controller: _nomeController,
                       label: "Nome da Empresa",
                       icon: Icons.business,
                       colorScheme: _colorScheme,
-                      validador: (v) => v == null || v.isEmpty || v.length < 3
+                      validator: (v) => v == null || v.isEmpty || v.length < 3
                           ? 'Preencha o campo "Nome da Empresa"'
                           : null,
                     ),
                     const SizedBox(height: 16),
-                    _buildTextField(
+                    TextFieldPadrao(
                       controller: _cpfCnpjController,
                       label: "CPF/CNPJ",
                       icon: Icons.badge_outlined,
                       colorScheme: _colorScheme,
-                      validador: (v) => validarCpfOuCnpj(v),
+                      validator: (v) => validarCpfOuCnpj(v),
                     ),
                     const SizedBox(height: 16),
-                    _buildTextField(
+                    TextFieldPadrao(
                       controller: _whatsAppController,
                       label: "WhatsApp",
                       icon: Icons.phone_android,
                       keyboardType: TextInputType.phone,
                       colorScheme: _colorScheme,
-                      mascara: [UtilTexto.mascaraTelefoneFormatter()],
+                      inputFormatters: [UtilTexto.mascaraTelefoneFormatter()],
                     ),
                     const SizedBox(height: 24),
                     Align(
@@ -208,14 +209,14 @@ class _CadastroEmpresaScreenState extends State<CadastroEmpresaScreen> {
                       child: Text("Endereço"),
                     ),
                     const SizedBox(height: 12),
-                    _buildTextField(
+                    TextFieldPadrao(
                       controller: _cepController,
                       label: "CEP",
                       icon: Icons.markunread_mailbox_outlined,
                       keyboardType: TextInputType.number,
                       colorScheme: _colorScheme,
-                      mascara: [UtilTexto.mascaraCepFormatter()],
-                      validador: (v) {
+                      inputFormatters: [UtilTexto.mascaraCepFormatter()],
+                      validator: (v) {
                         if (v == null || v.isEmpty) return 'Preencha o CEP';
                         if (v.length < 9) return 'CEP inválido';
                         return null;
@@ -226,7 +227,7 @@ class _CadastroEmpresaScreenState extends State<CadastroEmpresaScreen> {
                       children: [
                         Expanded(
                           flex: 70,
-                          child: _buildTextField(
+                          child: TextFieldPadrao(
                             controller: _ruaController,
                             label: "Rua",
                             icon: Icons.location_on_outlined,
@@ -236,7 +237,7 @@ class _CadastroEmpresaScreenState extends State<CadastroEmpresaScreen> {
                         const SizedBox(width: 16),
                         Expanded(
                           flex: 30,
-                          child: _buildTextField(
+                          child: TextFieldPadrao(
                             controller: _numeroController,
                             label: "Número",
                             icon: Icons.confirmation_number_outlined,
@@ -251,7 +252,7 @@ class _CadastroEmpresaScreenState extends State<CadastroEmpresaScreen> {
                       children: [
                         Expanded(
                           flex: 50,
-                          child: _buildTextField(
+                          child: TextFieldPadrao(
                             controller: _bairroController,
                             label: "Bairro",
                             icon: Icons.home_outlined,
@@ -261,7 +262,7 @@ class _CadastroEmpresaScreenState extends State<CadastroEmpresaScreen> {
                         const SizedBox(width: 16),
                         Expanded(
                           flex: 50,
-                          child: _buildTextField(
+                          child: TextFieldPadrao(
                             controller: _cidadeController,
                             label: "Cidade",
                             icon: Icons.location_city_outlined,
@@ -275,41 +276,6 @@ class _CadastroEmpresaScreenState extends State<CadastroEmpresaScreen> {
               ),
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    required ColorScheme colorScheme,
-    TextInputType? keyboardType,
-    FormFieldValidator<String?>? validador,
-    List<TextInputFormatter>? mascara,
-  }) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: keyboardType,
-      style: TextStyle(color: colorScheme.onSurface),
-      inputFormatters: mascara,
-      validator:
-          validador ??
-          (v) => v == null || v.isEmpty ? 'Preencha o campo "$label"' : null,
-      decoration: InputDecoration(
-        prefixIcon: Icon(icon, color: colorScheme.primary),
-        labelText: label,
-        labelStyle: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.7)),
-        filled: true,
-        fillColor: colorScheme.surfaceContainerHighest,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: colorScheme.outlineVariant),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: colorScheme.primary, width: 2),
         ),
       ),
     );

@@ -6,6 +6,7 @@ import 'package:agendadoradmin/singleton/lista_empresa_singleton.dart';
 import 'package:agendadoradmin/tools/util_mensagem.dart';
 import 'package:agendadoradmin/widgets/app_bar_padrao.dart';
 import 'package:agendadoradmin/widgets/button_bar_padrao.dart';
+import 'package:agendadoradmin/widgets/textfield_padrao.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -41,6 +42,7 @@ class _CadastroProfissionalScreenState
 
   bool _ativo = true;
   bool _isLoading = false;
+  bool _carregandoServicos = false;
 
   ThemeData? _theme;
   late ColorScheme _colorScheme;
@@ -59,23 +61,33 @@ class _CadastroProfissionalScreenState
     super.initState();
 
     if (widget.profissionalEdicao != null) {
-      buscarListaProfissionalServicos();
       _nomeController.text = widget.profissionalEdicao!.nome;
       _emailController.text = widget.profissionalEdicao!.email;
       _ativo = widget.profissionalEdicao!.ativo == 1;
     }
+    buscarListaProfissionalServicos();
   }
 
   void buscarListaProfissionalServicos() async {
-    final lista = await profissionalService.buscarListaProfissionalServicos(
-      widget.profissionalEdicao!.id!,
-    );
-
-    if (!mounted) return;
-
     setState(() {
-      listaProfissionalServicos = lista;
+      _carregandoServicos = true;
     });
+    try {
+      final lista = await profissionalService.buscarListaProfissionalServicos(
+        widget.profissionalEdicao?.id ?? 0,
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        listaProfissionalServicos = lista;
+        _carregandoServicos = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _carregandoServicos = false);
+      UtilMensagem.showErro(context, "Falha ao buscar lista de serviços: $e");
+    }
   }
 
   void _salvarProfissional() async {
@@ -241,24 +253,24 @@ class _CadastroProfissionalScreenState
                       ),
                     ),
                     const SizedBox(height: 16),
-                    _buildTextField(
+                    TextFieldPadrao(
                       controller: _nomeController,
                       label: "Nome do Profissional",
                       icon: Icons.person,
                       colorScheme: _colorScheme,
-                      validador: (v) => v == null || v.isEmpty || v.length < 3
+                      validator: (v) => v == null || v.isEmpty || v.length < 3
                           ? 'Preencha o campo "Nome do Profissional"'
                           : null,
                     ),
                     const SizedBox(height: 16),
 
-                    _buildTextField(
+                    TextFieldPadrao(
                       controller: _emailController,
                       label: "E-mail",
                       icon: Icons.email_outlined,
                       keyboardType: TextInputType.emailAddress,
                       colorScheme: _colorScheme,
-                      validador: (v) {
+                      validator: (v) {
                         if (v == null || v.isEmpty) return 'Preencha o E-mail';
                         if (v.contains('@') == false) return 'E-mail inválido';
                         return null;
@@ -272,7 +284,10 @@ class _CadastroProfissionalScreenState
                     const SizedBox(height: 12),
                     if (listaProfissionalServicos.isEmpty)
                       const SizedBox(height: 48),
-                    if (listaProfissionalServicos.isEmpty)
+                    if (_carregandoServicos)
+                      Center(child: CircularProgressIndicator()),
+                    if (listaProfissionalServicos.isEmpty &&
+                        (!_carregandoServicos))
                       Center(
                         child: Text(
                           'Nenhum serviço cadastrado.',
@@ -289,8 +304,8 @@ class _CadastroProfissionalScreenState
 
                         return Card(
                           color: themeNotifier.isDarkMode
-                          ? _colorScheme.surfaceContainerHighest.withValues(alpha: 0.3)
-                          : _colorScheme.surfaceContainerHighest.withValues(alpha: 0.85),
+                          ? _colorScheme.outlineVariant.withValues(alpha: 0.08)
+                          : _colorScheme.surfaceContainerHighest.withValues(alpha: 0.9),
                           child: Padding(
                             padding: const EdgeInsets.all(12.0),
                             child: Row(
@@ -299,7 +314,9 @@ class _CadastroProfissionalScreenState
                                 Checkbox(
                                   value: item.habilitado == 1,
                                   side: BorderSide(
-                                    color: _colorScheme.onSurface.withValues(alpha: 0.8), // borda
+                                    color: _colorScheme.onSurface.withValues(
+                                      alpha: 0.8,
+                                    ), // borda
                                     width: 2,
                                   ),
                                   onChanged: (value) {
@@ -344,43 +361,6 @@ class _CadastroProfissionalScreenState
               ),
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    required ColorScheme colorScheme,
-    TextInputType? keyboardType,
-    FormFieldValidator<String?>? validador,
-    List<TextInputFormatter>? mascara,
-  }) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: keyboardType,
-      style: TextStyle(color: colorScheme.onSurface),
-      inputFormatters: mascara,
-      validator:
-          validador ??
-          (v) => v == null || v.isEmpty ? 'Preencha o campo "$label"' : null,
-      decoration: InputDecoration(
-        prefixIcon: Icon(icon, color: colorScheme.primary),
-        labelText: label,
-        labelStyle: TextStyle(
-          color: colorScheme.onSurface.withValues(alpha: 0.7),
-        ),
-        filled: true,
-        fillColor: colorScheme.surfaceContainerHighest,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: colorScheme.outlineVariant),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: colorScheme.primary, width: 2),
         ),
       ),
     );

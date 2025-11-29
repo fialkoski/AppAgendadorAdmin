@@ -1,8 +1,11 @@
+import 'package:agendadoradmin/configurations/theme_notifier.dart';
 import 'package:agendadoradmin/models/agenda_item.dart';
 import 'package:agendadoradmin/models/profissional.dart';
 import 'package:agendadoradmin/services/agenda_service.dart';
 import 'package:agendadoradmin/services/profissional_service.dart';
+import 'package:agendadoradmin/tools/util_mensagem.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class AgendaScreen extends StatefulWidget {
   const AgendaScreen({super.key});
@@ -20,6 +23,7 @@ class _AgendaScreenState extends State<AgendaScreen> {
 
   DateTime dataSelecionada = DateTime.now();
   int? profissionalSelecionadoIndex;
+  bool _carregandoAgenda = false;
 
   @override
   void initState() {
@@ -48,14 +52,24 @@ class _AgendaScreenState extends State<AgendaScreen> {
         profissionais.length > profissionalSelecionadoIndex!) {
       profissionalId = profissionais[profissionalSelecionadoIndex!].id ?? 0;
     }
-
-    var listaAgenda = await agendaService.buscarAgendaPorProfissionalDia(
-      profissionalId,
-      dataSelecionada,
-    );
     setState(() {
-      agenda = listaAgenda;
+      _carregandoAgenda = true;
     });
+
+    try {
+      var listaAgenda = await agendaService.buscarAgendaPorProfissionalDia(
+        profissionalId,
+        dataSelecionada,
+      );
+      setState(() {
+        _carregandoAgenda = false;
+        agenda = listaAgenda;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _carregandoAgenda = false);
+      UtilMensagem.showErro(context, "Falha ao buscar agenda: $e");
+    }
   }
 
   void mudarDia(int incremento) {
@@ -142,6 +156,10 @@ class _AgendaScreenState extends State<AgendaScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final _colorScheme = theme.colorScheme;
+    final themeNotifier = Provider.of<ThemeNotifier>(context);
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: SafeArea(
@@ -176,29 +194,40 @@ class _AgendaScreenState extends State<AgendaScreen> {
                             },
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 150),
-                              margin: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 12,
-                              ),
+                              margin: const EdgeInsets.only(right: 8),
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 14,
                                 vertical: 8,
                               ),
                               decoration: BoxDecoration(
                                 color: selecionado
-                                    ? Colors.white
-                                    : Colors.grey.shade200,
-                                borderRadius: BorderRadius.circular(8),
+                                    ? _colorScheme.primary
+                                    : _colorScheme.surface,
+                                borderRadius: BorderRadius.circular(10),
+                                border: selecionado
+                                    ? null
+                                    : Border.all(color: _colorScheme.outlineVariant),
+                                boxShadow: selecionado
+                                    ? [
+                                        BoxShadow(
+                                          color: _colorScheme.primary.withValues(
+                                            alpha: 0.25,
+                                          ),
+                                          blurRadius: 6,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ]
+                                    : null,
                               ),
                               child: Text(
                                 p.nome,
-                                style: TextStyle(
+                                style: theme.textTheme.bodyMedium?.copyWith(
                                   color: selecionado
-                                      ? Colors.black
-                                      : Colors.grey.shade600,
+                                      ? _colorScheme.onPrimary
+                                      : _colorScheme.onSurface,
                                   fontWeight: selecionado
                                       ? FontWeight.bold
-                                      : FontWeight.w400,
+                                      : FontWeight.w500,
                                 ),
                               ),
                             ),
@@ -207,7 +236,18 @@ class _AgendaScreenState extends State<AgendaScreen> {
                       ),
                     ),
                   ),
-
+                  if (agenda.isEmpty) const SizedBox(height: 48),
+                  if (_carregandoAgenda)
+                       Center(child: CircularProgressIndicator()),
+                  if (agenda.isEmpty && (!_carregandoAgenda))
+                    Center(
+                      child: Text(
+                        'Nenhum agendamento para este dia.',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                    ),
                   ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
@@ -216,10 +256,12 @@ class _AgendaScreenState extends State<AgendaScreen> {
                       final item = agenda[index];
 
                       return Card(
+                        color: themeNotifier.isDarkMode
+                          ? _colorScheme.outlineVariant.withValues(alpha: 0.08)
+                          : _colorScheme.surfaceContainerHighest.withValues(alpha: 0.9),
                         child: Padding(
                           padding: const EdgeInsets.all(12.0),
                           child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 "${item.hora.substring(0, 5)}  ${item.nomeCliente == '' ? "Livre" : item.nomeCliente}",

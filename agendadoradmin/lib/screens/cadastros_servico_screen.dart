@@ -5,6 +5,7 @@ import 'package:agendadoradmin/tools/util_mensagem.dart';
 import 'package:agendadoradmin/tools/util_texto.dart';
 import 'package:agendadoradmin/widgets/app_bar_padrao.dart';
 import 'package:agendadoradmin/widgets/button_bar_padrao.dart';
+import 'package:agendadoradmin/widgets/textfield_padrao.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -149,24 +150,24 @@ class _CadastroServicoScreenState extends State<CadastroServicoScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    _buildTextField(
+                    TextFieldPadrao(
                       controller: _descricaoController,
                       label: "Descrição do Serviço",
                       icon: Icons.content_cut,
                       colorScheme: _colorScheme,
-                      validador: (v) => v == null || v.isEmpty || v.length < 3
+                      validator: (v) => v == null || v.isEmpty || v.length < 3
                           ? 'Preencha o campo "Descrição do Serviço"'
                           : null,
                     ),
                     const SizedBox(height: 16),
 
-                    _buildTextField(
+                    TextFieldPadrao(
                       controller: _tempoController,
                       label: "Tempo Estimado em minutos(ex: 40)",
                       icon: Icons.access_time,
                       keyboardType: TextInputType.number,
                       colorScheme: _colorScheme,
-                      validador: (v) {
+                      validator: (v) {
                         if (v == null || v.isEmpty) {
                           return 'Preencha o Tempo Estimado';
                         }
@@ -174,13 +175,13 @@ class _CadastroServicoScreenState extends State<CadastroServicoScreen> {
                       },
                     ),
                     const SizedBox(height: 16),
-                    _buildTextField(
+                    TextFieldPadrao(
                       controller: _precoController,
                       label: "Preço",
                       icon: Icons.attach_money_rounded,
                       keyboardType: TextInputType.number,
                       colorScheme: _colorScheme,
-                      validador: (v) {
+                      validator: (v) {
                         if (v == null || v.isEmpty) {
                           return 'Preencha o Preço';
                         }
@@ -196,43 +197,6 @@ class _CadastroServicoScreenState extends State<CadastroServicoScreen> {
       ),
     );
   }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    required ColorScheme colorScheme,
-    TextInputType? keyboardType,
-    FormFieldValidator<String?>? validador,
-    List<TextInputFormatter>? mascara,
-  }) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: keyboardType,
-      style: TextStyle(color: colorScheme.onSurface),
-      inputFormatters: mascara,
-      validator:
-          validador ??
-          (v) => v == null || v.isEmpty ? 'Preencha o campo "$label"' : null,
-      decoration: InputDecoration(
-        prefixIcon: Icon(icon, color: colorScheme.primary),
-        labelText: label,
-        labelStyle: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.7)),
-        filled: true,
-        fillColor: colorScheme.surfaceContainerHighest,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: colorScheme.outlineVariant),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: colorScheme.primary, width: 2),
-        ),
-      ),
-    );
-  }
-
-
 
   @override
   void dispose() {

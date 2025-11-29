@@ -340,8 +340,8 @@ class _CadastroProfissionalAgendaScreenState
 
                         return Card(
                           color: themeNotifier.isDarkMode
-                          ? _colorScheme.surfaceContainerHighest.withValues(alpha: 0.3)
-                          : _colorScheme.surfaceContainerHighest.withValues(alpha: 0.85),
+                          ? _colorScheme.outlineVariant.withValues(alpha: 0.08)
+                          : _colorScheme.surfaceContainerHighest.withValues(alpha: 0.9),
                           child: Padding(
                             padding: const EdgeInsets.all(12.0),
                             child: Row(
@@ -457,14 +457,18 @@ class _CadastroProfissionalAgendaScreenState
           color: colorScheme.onSurface.withValues(alpha: 0.7),
         ),
         filled: true,
-        fillColor: colorScheme.surfaceContainerHighest,
+        fillColor: colorScheme.onSurface.withValues(alpha: 0.03),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: colorScheme.outlineVariant),
+          borderRadius: BorderRadius.circular(15),
+          borderSide: BorderSide(color: colorScheme.outline),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
-          borderSide: BorderSide(color: colorScheme.primary, width: 2),
+          borderRadius: BorderRadius.circular(15),
+          borderSide: BorderSide(color: colorScheme.primary),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
         ),
       ),
     );
