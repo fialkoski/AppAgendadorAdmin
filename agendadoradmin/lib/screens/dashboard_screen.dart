@@ -56,9 +56,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> loadData() async {
-    setState(() => loading = true);
+    //setState(() => loading = true);
 
-    await Future.delayed(const Duration(milliseconds: 900)); // simular API
+    //await Future.delayed(const Duration(milliseconds: 900)); // simular API
 
     stats = Stats(
       totalClients: 124,

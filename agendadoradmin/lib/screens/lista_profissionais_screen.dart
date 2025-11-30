@@ -161,42 +161,54 @@ class ListaProfissionaisScreen extends StatefulWidget {
   const ListaProfissionaisScreen({super.key});
 
   @override
-  State<ListaProfissionaisScreen> createState() => _ListaProfissionaisScreenState();
+  State<ListaProfissionaisScreen> createState() =>
+      _ListaProfissionaisScreenState();
 }
 
 class _ListaProfissionaisScreenState extends State<ListaProfissionaisScreen> {
   final ProfissionalService profissionalService = ProfissionalService();
 
+  ThemeData? _theme;
+  late ColorScheme _colorScheme;
+  late TextTheme _textTheme;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _theme = Theme.of(context);
+    _colorScheme = _theme!.colorScheme;
+    _textTheme = _theme!.textTheme;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
+    final _colorScheme = Theme.of(context).colorScheme;
+    final _textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBarPadrao(
-          icon: null,
-          title: 'Profissionais',
-          subtitle: 'Gerencie todas os profissionais cadastrados na plataforma.',
-          tituloBotao: 'Adicionar Profissional',
-          onPressed: () {
-            context.go('/profissionais/cadastro');
-          }),
+        icon: null,
+        title: 'Profissionais',
+        subtitle: 'Gerencie todas os profissionais cadastrados na plataforma.',
+        tituloBotao: 'Adicionar Profissional',
+        onPressed: () {
+          context.go('/profissionais/cadastro');
+        },
+      ),
       body: TelaListagemPadrao(
         titulo: 'Lista de Profissionais',
         dataTable: FutureBuilder<List<Profissional>>(
           future: profissionalService.buscarListaProfissionais(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
+              return const Center(child: CircularProgressIndicator());
             }
             if (snapshot.hasError) {
               return Center(
                 child: Text(
                   'Erro ao carregar profissionais: ${snapshot.error}',
-                  style: TextStyle(color: colorScheme.error),
+                  style: TextStyle(color: _colorScheme.error),
                 ),
               );
             }
@@ -205,11 +217,11 @@ class _ListaProfissionaisScreenState extends State<ListaProfissionaisScreen> {
               return Center(
                 child: Text(
                   'Nenhum profissional encontrado.',
-                  style: TextStyle(color: colorScheme.onSurface),
+                  style: TextStyle(color: _colorScheme.onSurface),
                 ),
               );
             }
-            return _gridDados(profissionais, colorScheme, textTheme);
+            return _gridDados(profissionais);
           },
         ),
       ),
@@ -217,60 +229,70 @@ class _ListaProfissionaisScreenState extends State<ListaProfissionaisScreen> {
   }
 
   DataTable2 _gridDados(
-      List<Profissional> profissionais, ColorScheme colorScheme, textTheme) {
+    List<Profissional> profissionais
+  ) {
+    final headerStyle = _textTheme.titleSmall?.copyWith(
+      color: _colorScheme.onSurface,//.withValues(alpha: 0.9),
+      fontWeight: FontWeight.w600,
+    );
+    final itensStyle = TextStyle(
+      color: _colorScheme.onSurface.withValues(alpha: 0.8),
+    );
     return DataTable2(
       columnSpacing: 12,
       horizontalMargin: 12,
       minWidth: 800,
+      headingTextStyle: headerStyle,
+      dividerThickness: 0,
       columns: [
         DataColumn2(
-            label: Text(
-              'Nome',
-              style: textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: colorScheme.onSurface,
-              ),
-            ),
-            size: ColumnSize.L),
+          label: Text(
+            'NOME',
+            style: headerStyle,
+          ),
+          size: ColumnSize.L,
+        ),
         DataColumn2(
-            label: Text(
-              'E-mail',
-              style: textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: colorScheme.onSurface,
-              ),
-            ),
-            size: ColumnSize.S),
+          label: Text(
+            'E-MAIL',
+            style: headerStyle,
+          ),
+          size: ColumnSize.S,
+        ),
         DataColumn2(
-            label: Align(
-              alignment: Alignment.centerRight,
-              child: Text(
-                'Ações',
-                style: textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: colorScheme.onSurface,
-                ),
-                textAlign: TextAlign.right,
-              ),
+          label: Align(
+            alignment: Alignment.centerRight,
+            child: Text(
+              '',
+              style: headerStyle,
+              textAlign: TextAlign.right,
             ),
-            size: ColumnSize.S),
+          ),
+          size: ColumnSize.S,
+        ),
       ],
       rows: profissionais.map((profissional) {
+        int index = profissionais.indexOf(profissional);
         return DataRow(
+          color: WidgetStateProperty.all(
+            index % 2 == 0
+                ? _colorScheme.onSurface.withValues(alpha: 0.03) // linha clara
+                : Colors.transparent,
+          ), 
           cells: [
-            DataCell(Text(profissional.nome)),
-            DataCell(Text(profissional.email)),
+            DataCell(Text(profissional.nome, style: itensStyle,)),
+            DataCell(Text(profissional.email, style: itensStyle)),
             DataCell(
               Align(
                 alignment: Alignment.centerRight,
                 child: PopupMenuButton<String>(
-                  icon: Icon(
-                    Icons.more_vert,
-                    color: colorScheme.onSurface,
-                  ),
+                  icon: Icon(Icons.more_vert, color: _colorScheme.onSurface),
                   onSelected: (value) {
                     if (value == 'editar') {
-                      context.go('/profissionais/cadastro', extra: profissional) ;
+                      context.go(
+                        '/profissionais/cadastro',
+                        extra: profissional,
+                      );
                     }
                   },
                   itemBuilder: (context) => [
@@ -278,7 +300,7 @@ class _ListaProfissionaisScreenState extends State<ListaProfissionaisScreen> {
                       value: 'editar',
                       child: Row(
                         children: [
-                          Icon(Icons.edit, color: colorScheme.primary),
+                          Icon(Icons.edit, color: _colorScheme.primary),
                           SizedBox(width: 8),
                           Text('Editar'),
                         ],

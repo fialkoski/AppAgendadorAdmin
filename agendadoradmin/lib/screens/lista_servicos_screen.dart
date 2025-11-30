@@ -31,11 +31,10 @@ class _ListaServicosScreenState extends State<ListaServicosScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _theme = Theme.of(context); 
+    _theme = Theme.of(context);
     _colorScheme = _theme!.colorScheme;
     _textTheme = _theme!.textTheme;
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -44,22 +43,21 @@ class _ListaServicosScreenState extends State<ListaServicosScreen> {
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBarPadrao(
-          icon: null,
-          title: 'Serviços',
-          subtitle: 'Gerencie todas os serviços cadastrados na plataforma.',
-          tituloBotao: 'Adicionar Serviço',
-          onPressed: () {
-            context.go('/servicos/cadastro');
-          }),
+        icon: null,
+        title: 'Serviços',
+        subtitle: 'Gerencie todas os serviços cadastrados na plataforma.',
+        tituloBotao: 'Adicionar Serviço',
+        onPressed: () {
+          context.go('/servicos/cadastro');
+        },
+      ),
       body: TelaListagemPadrao(
         titulo: 'Lista de Servicos',
         dataTable: FutureBuilder<List<Servico>>(
           future: _servicosFuture,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
+              return const Center(child: CircularProgressIndicator());
             }
             if (snapshot.hasError) {
               return Center(
@@ -85,71 +83,77 @@ class _ListaServicosScreenState extends State<ListaServicosScreen> {
     );
   }
 
-  DataTable2 _gridDados(
-      List<Servico> servicos) {
+  DataTable2 _gridDados(List<Servico> servicos) {
+    final headerStyle = _textTheme.titleSmall?.copyWith(
+      color: _colorScheme.onSurface, //.withValues(alpha: 0.9),
+      fontWeight: FontWeight.w600,
+    );
+    final itensStyle = TextStyle(
+      color: _colorScheme.onSurface.withValues(alpha: 0.8),
+    );
     return DataTable2(
       columnSpacing: 12,
       horizontalMargin: 12,
       minWidth: 800,
+      headingTextStyle: headerStyle,
+      dividerThickness: 0,
       columns: [
         DataColumn2(
-            label: Text(
-              'Descrição',
+          label: Text(
+            'DESCRIÇÃO',
+            style: headerStyle,
+          ),
+          size: ColumnSize.L,
+        ),
+        DataColumn2(
+          label: Text(
+            'TEMPO',
+            style: headerStyle,
+          ),
+          size: ColumnSize.S,
+        ),
+        DataColumn2(
+          label: Text(
+            'PREÇO',
+            style: headerStyle,
+          ),
+          size: ColumnSize.S,
+        ),
+        DataColumn2(
+          label: Align(
+            alignment: Alignment.centerRight,
+            child: Text(
+              '',
               style: _textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
                 color: _colorScheme.onSurface,
               ),
+              textAlign: TextAlign.right,
             ),
-            size: ColumnSize.L),
-        DataColumn2(
-            label: Text(
-              'Tempo',
-              style: _textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: _colorScheme.onSurface,
-              ),
-            ),
-            size: ColumnSize.S),
-        DataColumn2(
-            label: Text(
-              'Preço',
-              style: _textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: _colorScheme.onSurface,
-              ),
-            ),
-            size: ColumnSize.S),
-        DataColumn2(
-            label: Align(
-              alignment: Alignment.centerRight,
-              child: Text(
-                'Ações',
-                style: _textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: _colorScheme.onSurface,
-                ),
-                textAlign: TextAlign.right,
-              ),
-            ),
-            size: ColumnSize.S),
+          ),
+          size: ColumnSize.S,
+        ),
       ],
       rows: servicos.map((servico) {
+         int index = servicos.indexOf(servico);
         return DataRow(
+          color: WidgetStateProperty.all(
+            index % 2 == 0
+                ? _colorScheme.onSurface.withValues(alpha: 0.03) // linha clara
+                : Colors.transparent,
+          ), 
           cells: [
-            DataCell(Text(servico.descricao)),
-            DataCell(Text(servico.tempo)),
-            DataCell(Text(UtilTexto.formatarDecimalParaMoeda(servico.preco))),
+            DataCell(Text(servico.descricao, style: itensStyle)),
+            DataCell(Text(servico.tempo, style: itensStyle)),
+            DataCell(Text(UtilTexto.formatarDecimalParaMoeda(servico.preco), style: itensStyle)),
             DataCell(
               Align(
                 alignment: Alignment.centerRight,
                 child: PopupMenuButton<String>(
-                  icon: Icon(
-                    Icons.more_vert,
-                    color: _colorScheme.onSurface,
-                  ),
+                  icon: Icon(Icons.more_vert, color: _colorScheme.onSurface),
                   onSelected: (value) {
                     if (value == 'editar') {
-                      context.go('/servicos/cadastro', extra: servico) ;
+                      context.go('/servicos/cadastro', extra: servico);
                     }
                   },
                   itemBuilder: (context) => [
