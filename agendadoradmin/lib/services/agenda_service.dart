@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:agendadoradmin/models/agenda_item.dart';
+import 'package:agendadoradmin/models/cliente.dart';
 import 'package:agendadoradmin/models/erro_requisicao.dart';
+import 'package:agendadoradmin/models/servico.dart';
 import 'package:agendadoradmin/services/api_service.dart';
 import 'package:agendadoradmin/singleton/lista_empresa_singleton.dart';
 
@@ -59,6 +61,54 @@ class AgendaService {
     if (response.statusCode == 200 || response.statusCode == 201) {
       final List<dynamic> data = json.decode(response.body);
       return data.map((json) => AgendaItem.fromJson(json)).toList();
+    } else {
+      ErroRequisicao erro = ErroRequisicao.fromJson(jsonDecode(response.body));
+      throw Exception(erro.mensagemFormatada().replaceFirst('Exception: ', ''));
+    }
+  }
+
+
+  Future<String> salvarAgendamento(int idProfissional, String data,
+      String hora, int idServico, Cliente cliente) async {
+    String retorno = '';
+
+    final Map<String, dynamic> dados = {
+      "idEmpresa": ListaEmpresaSingleton.instance.empresa!.id,
+      "idProfissional": idProfissional,
+      "data": data,
+      "hora": hora,
+      "idServico": idServico,
+      "cliente": {
+        "nome": cliente.nome,
+        "cpf": cliente.cpf,
+        "telefone": cliente.telefone
+      }
+    };
+
+    final response = await ApiService.post(
+        '/api/${ListaEmpresaSingleton.instance.empresa!.id}/agendamentos', dados);
+    if (response.statusCode == 200) {
+      retorno = 'Agendamento salvo com sucesso.';
+    } else {
+      ErroRequisicao erro = ErroRequisicao.fromJson(jsonDecode(response.body));
+      throw Exception(erro.mensagemFormatada().replaceFirst('Exception: ', ''));
+    }
+
+    return retorno;
+  }
+
+  Future<bool> cancelarAgendamento(int idProfissional, String data, String hora) async {
+    final Map<String, dynamic> dados = {
+      "idEmpresa": ListaEmpresaSingleton.instance.empresa!.id,
+      "idProfissional": idProfissional,
+      "data": data,
+      "hora": hora
+    };
+
+    final response = await ApiService.post(
+        '/api/${ListaEmpresaSingleton.instance.empresa!.id}/agendamentos/cancelar', dados);
+    if (response.statusCode == 200) {
+      return true;
     } else {
       ErroRequisicao erro = ErroRequisicao.fromJson(jsonDecode(response.body));
       throw Exception(erro.mensagemFormatada().replaceFirst('Exception: ', ''));

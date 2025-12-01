@@ -92,4 +92,31 @@ class UtilTexto {
       return TimeOfDay(hour: 0, minute: 0);
     }
   }
+
+  static bool validarCPF(String cpf) {
+    cpf = cpf.replaceAll(RegExp(r'\D'), '');
+    if (cpf.length != 11 || RegExp(r'^(\d)\1*$').hasMatch(cpf)) return false;
+
+    List<int> digits = cpf.split('').map(int.parse).toList();
+
+    // Validação do primeiro dígito verificador
+    int sum = 0;
+    for (int i = 0; i < 9; i++) {
+      sum += digits[i] * (10 - i);
+    }
+    int firstCheck = (sum * 10) % 11;
+    if (firstCheck == 10) firstCheck = 0;
+    if (firstCheck != digits[9]) return false;
+
+    // Validação do segundo dígito verificador
+    sum = 0;
+    for (int i = 0; i < 10; i++) {
+      sum += digits[i] * (11 - i);
+    }
+    int secondCheck = (sum * 10) % 11;
+    if (secondCheck == 10) secondCheck = 0;
+    if (secondCheck != digits[10]) return false;
+
+    return true;
+  }
 }
