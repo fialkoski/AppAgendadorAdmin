@@ -1,6 +1,7 @@
 import 'package:agendadoradmin/configurations/theme_notifier.dart';
 import 'package:agendadoradmin/models/usuario.dart';
 import 'package:agendadoradmin/services/login_service.dart';
+import 'package:agendadoradmin/singleton/lista_empresa_singleton.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -41,7 +42,8 @@ class _LoginScreenState extends State<LoginScreen> {
             uidgoogle: "",
           ),
         )
-        .then((msg) {
+        .then((msg) async {
+          await ListaEmpresaSingleton.instance.buscarListaEmpresa();
           setState(() => _isLoading = false);
           if (!mounted) return;
           context.go('/dashboard');

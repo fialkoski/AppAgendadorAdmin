@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:agendadoradmin/models/empresa.dart';
+import 'package:agendadoradmin/services/empresa_service.dart';
+import 'package:agendadoradmin/singleton/usuario_singleton.dart';
 import 'package:agendadoradmin/tools/util.dart';
 
 class ListaEmpresaSingleton {
@@ -79,5 +81,32 @@ class ListaEmpresaSingleton {
     int? index = _empresas.indexWhere((e) => e.id == _selectedEmpresaId);
     if (index == -1) return null;
     return _empresas[index];
+  }
+
+  Future<void> atualizarListaEmpresa() async {
+    final EmpresaService empresaService = EmpresaService();
+
+    var listaEmpresas = await empresaService.buscarEmpresaPorUsuario();
+    ListaEmpresaSingleton.instance.setListaEmpresa(listaEmpresas);
+
+    if ((ListaEmpresaSingleton.instance.selectedEmpresaId ?? 0) == 0) {
+      if (ListaEmpresaSingleton.instance.empresas.isNotEmpty) {
+        ListaEmpresaSingleton.instance.setSelectedEmpresaId(
+          ListaEmpresaSingleton.instance.empresas.first.id,
+        );
+      }
+    }
+  }
+
+  Future<void> buscarListaEmpresa() async {
+    if (UsuarioSingleton.instance.usuario?.id == null) return;
+
+    await ListaEmpresaSingleton.instance.buscarListaEmpresaUsuarioLocal().then(
+      (value) {},
+    );
+
+    if (ListaEmpresaSingleton.instance.empresas.isEmpty) {
+      await atualizarListaEmpresa();
+    }
   }
 }

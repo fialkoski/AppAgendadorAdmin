@@ -127,4 +127,5 @@ class RotasConfig {
   );
 
   static GoRouter getRouter() => _router;
+
 }

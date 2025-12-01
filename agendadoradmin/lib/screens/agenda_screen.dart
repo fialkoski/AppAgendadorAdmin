@@ -24,25 +24,43 @@ class _AgendaScreenState extends State<AgendaScreen> {
   DateTime dataSelecionada = DateTime.now();
   int? profissionalSelecionadoIndex;
   bool _carregandoAgenda = false;
+  bool _carregandoProfissional = false;
 
   @override
   void initState() {
     super.initState();
+    carregarDados();
+  }
+
+  void carregarDados() async {
     carregarProfissionais();
     carregarAgenda();
   }
 
   Future<void> carregarProfissionais() async {
-    var listaProfissionais = await profissionalService
-        .buscarListaProfissionais();
     setState(() {
-      profissionais = listaProfissionais;
-      if (profissionais.isNotEmpty) {
-        profissionalSelecionadoIndex = 0;
-      }
+      _carregandoProfissional = true;
     });
-    if (profissionais.isNotEmpty) {
-      await carregarAgenda();
+
+    try {
+      var listaProfissionais = await profissionalService
+          .buscarListaProfissionais();
+      setState(() {
+        profissionais = listaProfissionais;
+        if (profissionais.isNotEmpty) {
+          profissionalSelecionadoIndex = 0;
+        }
+      });
+      if (profissionais.isNotEmpty) {
+        await carregarAgenda();
+      }
+      setState(() {
+        _carregandoProfissional = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _carregandoProfissional = false);
+      UtilMensagem.showErro(context, "Falha ao buscar profissionais: $e");
     }
   }
 
@@ -206,13 +224,14 @@ class _AgendaScreenState extends State<AgendaScreen> {
                                 borderRadius: BorderRadius.circular(10),
                                 border: selecionado
                                     ? null
-                                    : Border.all(color: _colorScheme.outlineVariant),
+                                    : Border.all(
+                                        color: _colorScheme.outlineVariant,
+                                      ),
                                 boxShadow: selecionado
                                     ? [
                                         BoxShadow(
-                                          color: _colorScheme.primary.withValues(
-                                            alpha: 0.25,
-                                          ),
+                                          color: _colorScheme.primary
+                                              .withValues(alpha: 0.25),
                                           blurRadius: 6,
                                           offset: const Offset(0, 2),
                                         ),
@@ -236,10 +255,11 @@ class _AgendaScreenState extends State<AgendaScreen> {
                       ),
                     ),
                   ),
-                  if (agenda.isEmpty) const SizedBox(height: 48),
-                  if (_carregandoAgenda)
-                       Center(child: CircularProgressIndicator()),
-                  if (agenda.isEmpty && (!_carregandoAgenda))
+                  if (agenda.isEmpty || _carregandoAgenda || _carregandoProfissional)
+                    const SizedBox(height: 48),
+                  if (_carregandoAgenda || _carregandoProfissional)
+                    Center(child: CircularProgressIndicator()),
+                  if (agenda.isEmpty && (!_carregandoAgenda) && (!_carregandoProfissional))
                     Center(
                       child: Text(
                         'Nenhum agendamento para este dia.',
@@ -248,60 +268,65 @@ class _AgendaScreenState extends State<AgendaScreen> {
                         ),
                       ),
                     ),
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: agenda.length,
-                    itemBuilder: (context, index) {
-                      final item = agenda[index];
+                  if (!_carregandoAgenda)
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: agenda.length,
+                      itemBuilder: (context, index) {
+                        final item = agenda[index];
 
-                      return Card(
-                        color: themeNotifier.isDarkMode
-                          ? _colorScheme.outlineVariant.withValues(alpha: 0.08)
-                          : _colorScheme.surfaceContainerHighest.withValues(alpha: 0.9),
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Row(
-                            children: [
-                              Text(
-                                "${item.hora.substring(0, 5)}  ${item.nomeCliente == '' ? "Livre" : item.nomeCliente}",
-                                style: TextStyle(fontSize: 20),
-                              ),
-                              Spacer(),
-                              PopupMenuButton<String>(
-                                icon: Icon(
-                                  Icons.more_vert,
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurface,
+                        return Card(
+                          color: themeNotifier.isDarkMode
+                              ? _colorScheme.outlineVariant.withValues(
+                                  alpha: 0.08,
+                                )
+                              : _colorScheme.surfaceContainerHighest.withValues(
+                                  alpha: 0.9,
                                 ),
-                                onSelected: (value) {
-                                  if (value == 'remover') {}
-                                },
-                                itemBuilder: (context) => [
-                                  PopupMenuItem(
-                                    value: 'remover',
-                                    child: Row(
-                                      children: [
-                                        Icon(
-                                          Icons.edit,
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.primary,
-                                        ),
-                                        SizedBox(width: 8),
-                                        Text('Remover'),
-                                      ],
-                                    ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Row(
+                              children: [
+                                Text(
+                                  "${item.hora.substring(0, 5)}  ${item.nomeCliente == '' ? "Livre" : item.nomeCliente}",
+                                  style: TextStyle(fontSize: 20),
+                                ),
+                                Spacer(),
+                                PopupMenuButton<String>(
+                                  icon: Icon(
+                                    Icons.more_vert,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface,
                                   ),
-                                ],
-                              ),
-                            ],
+                                  onSelected: (value) {
+                                    if (value == 'remover') {}
+                                  },
+                                  itemBuilder: (context) => [
+                                    PopupMenuItem(
+                                      value: 'remover',
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            Icons.edit,
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.primary,
+                                          ),
+                                          SizedBox(width: 8),
+                                          Text('Remover'),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                  ),
+                        );
+                      },
+                    ),
                 ],
               ),
             ),

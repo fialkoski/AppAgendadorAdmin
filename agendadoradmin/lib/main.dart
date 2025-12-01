@@ -1,5 +1,6 @@
 import 'package:agendadoradmin/providers/empresa_provider.dart';
 import 'package:agendadoradmin/services/api_service.dart';
+import 'package:agendadoradmin/singleton/lista_empresa_singleton.dart';
 import 'package:agendadoradmin/singleton/usuario_singleton.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -10,8 +11,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await UsuarioSingleton.instance.carregarUsuario();
+  await ListaEmpresaSingleton.instance.buscarListaEmpresa();
 
-  // Redirecionamentos só após o frame inicial
   ApiService.onRedirecionamento = () {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       RotasConfig.getRouter().go('/login');

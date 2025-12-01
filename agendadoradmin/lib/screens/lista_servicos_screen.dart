@@ -47,8 +47,14 @@ class _ListaServicosScreenState extends State<ListaServicosScreen> {
         title: 'Serviços',
         subtitle: 'Gerencie todas os serviços cadastrados na plataforma.',
         tituloBotao: 'Adicionar Serviço',
-        onPressed: () {
-          context.go('/servicos/cadastro');
+        onPressed: () async {
+          final updated = await context.push('/servicos/cadastro');
+
+          if (updated == true) {
+            setState(() {
+              _servicosFuture = servicoService.buscarListaServicos();
+            });
+          }
         },
       ),
       body: TelaListagemPadrao(
@@ -99,24 +105,15 @@ class _ListaServicosScreenState extends State<ListaServicosScreen> {
       dividerThickness: 0,
       columns: [
         DataColumn2(
-          label: Text(
-            'DESCRIÇÃO',
-            style: headerStyle,
-          ),
+          label: Text('DESCRIÇÃO', style: headerStyle),
           size: ColumnSize.L,
         ),
         DataColumn2(
-          label: Text(
-            'TEMPO',
-            style: headerStyle,
-          ),
+          label: Text('TEMPO', style: headerStyle),
           size: ColumnSize.S,
         ),
         DataColumn2(
-          label: Text(
-            'PREÇO',
-            style: headerStyle,
-          ),
+          label: Text('PREÇO', style: headerStyle),
           size: ColumnSize.S,
         ),
         DataColumn2(
@@ -135,17 +132,22 @@ class _ListaServicosScreenState extends State<ListaServicosScreen> {
         ),
       ],
       rows: servicos.map((servico) {
-         int index = servicos.indexOf(servico);
+        int index = servicos.indexOf(servico);
         return DataRow(
           color: WidgetStateProperty.all(
             index % 2 == 0
                 ? _colorScheme.onSurface.withValues(alpha: 0.03) // linha clara
                 : Colors.transparent,
-          ), 
+          ),
           cells: [
             DataCell(Text(servico.descricao, style: itensStyle)),
             DataCell(Text(servico.tempo, style: itensStyle)),
-            DataCell(Text(UtilTexto.formatarDecimalParaMoeda(servico.preco), style: itensStyle)),
+            DataCell(
+              Text(
+                UtilTexto.formatarDecimalParaMoeda(servico.preco),
+                style: itensStyle,
+              ),
+            ),
             DataCell(
               Align(
                 alignment: Alignment.centerRight,

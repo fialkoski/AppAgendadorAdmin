@@ -1,4 +1,4 @@
-import 'dart:async';
+import 'dart:convert';
 
 import 'package:agendadoradmin/configurations/theme_notifier.dart';
 import 'package:agendadoradmin/providers/empresa_provider.dart';
@@ -8,6 +8,7 @@ import 'package:agendadoradmin/singleton/usuario_singleton.dart';
 import 'package:agendadoradmin/tools/util_mensagem.dart';
 import 'package:agendadoradmin/tools/util_texto.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
@@ -25,12 +26,14 @@ class _MainLayoutState extends State<PrincipalScreen> {
   final EmpresaService empresaService = EmpresaService();
   late var provider;
   bool _inicializado = false;
-  bool _carregandoEmpresas = false;
 
   @override
   void initState() {
     super.initState();
-    buscarListaEmpresa();
+    if (ListaEmpresaSingleton.instance.empresas.isEmpty) {
+      if (!mounted) return;
+      context.go('/empresas/cadastro');
+    }
   }
 
   @override
@@ -42,56 +45,6 @@ class _MainLayoutState extends State<PrincipalScreen> {
       //final provider = Provider.of<EmpresaProvider>(context); // listen: true por padrão
       //provider.carregarEmpresas(); // ou qualquer inicialização que dependa do provider
       _inicializado = true;
-    }
-  }
-
-  void buscarListaEmpresa() async {
-    await ListaEmpresaSingleton.instance.buscarListaEmpresaUsuarioLocal().then((
-      value,
-    ) {
-      setState(() {
-        ListaEmpresaSingleton.instance.empresas;
-      });
-    });
-
-    if (ListaEmpresaSingleton.instance.empresas.isEmpty) {
-      atualizarListaEmpresa();
-    }
-  }
-
-  Future<void> atualizarListaEmpresa() async {
-    setState(() {
-      _carregandoEmpresas = true;
-    });
-
-    try {
-      var listaEmpresas = await empresaService.buscarEmpresaPorUsuario();
-      ListaEmpresaSingleton.instance.setListaEmpresa(listaEmpresas);
-
-      if ((ListaEmpresaSingleton.instance.selectedEmpresaId ?? 0) == 0) {
-        if (ListaEmpresaSingleton.instance.empresas.isNotEmpty) {
-          ListaEmpresaSingleton.instance.setSelectedEmpresaId(
-            ListaEmpresaSingleton.instance.empresas.first.id,
-          );
-        }
-      }
-
-      setState(() {
-        _carregandoEmpresas = false;
-      });
-
-      if (ListaEmpresaSingleton.instance.empresas.isEmpty) {
-        if (!mounted) return;
-        context.go('/empresas/cadastro');
-      }
-    } catch (e) {
-      if (!mounted) return;
-      setState(() => _carregandoEmpresas = false);
-      UtilMensagem.showErro(
-        context,
-        "Falha ao buscar as empresas do usuário: $e",
-      );
-      context.go('/login');
     }
   }
 
@@ -124,9 +77,7 @@ class _MainLayoutState extends State<PrincipalScreen> {
                         width: 0.5,
                       ),
                     ),
-                    child: (_carregandoEmpresas)
-                        ? Center(child: CircularProgressIndicator())
-                        : AnimatedSwitcher(
+                    child: AnimatedSwitcher(
                             duration: const Duration(milliseconds: 300),
                             child: widget.child,
                           ), // conteúdo da agenda
@@ -332,6 +283,49 @@ class _MainLayoutState extends State<PrincipalScreen> {
                 ),
               ),
           Spacer(),
+          TextButton.icon(
+            icon: Icon(Icons.campaign, color: colorScheme.primary),
+            label: Text(
+              'Compartilhe seu link de agendamento',
+              style: TextStyle(color: colorScheme.primary),
+            ),
+            onPressed: () async {
+              if ((ListaEmpresaSingleton.instance.selectedEmpresaId ?? 0) ==
+                  0) {
+                UtilMensagem.showErro(
+                  context,
+                  "Selecione uma empresa para copiar o link de agendamento!",
+                );
+                return;
+              }
+              String base64_1 = base64Encode(
+                utf8.encode(
+                  ListaEmpresaSingleton.instance.selectedEmpresaId.toString(),
+                ),
+              );
+              String base64_2 = base64Encode(utf8.encode(base64_1));
+              String link =
+                  'https://orange-mushroom-05c3bf00f.3.azurestaticapps.net/agenda/$base64_2';
+
+              await Clipboard.setData(ClipboardData(text: link));
+              if (!mounted) return;
+              UtilMensagem.showSucesso(
+                context,
+                "Link de agendamento copiado para a área de transferência!",
+              );
+            },
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 22),
+              foregroundColor: colorScheme.onSurface.withValues(alpha: 0.8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              textStyle: textTheme.labelLarge?.copyWith(
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+
           const SizedBox(width: 16),
           InkWell(
             borderRadius: BorderRadius.circular(20),
@@ -421,7 +415,10 @@ class _MainLayoutState extends State<PrincipalScreen> {
     return InkWell(
       onTap: () {
         if (ListaEmpresaSingleton.instance.empresas.isEmpty) {
-          UtilMensagem.showErro(context, "Você ainda não possui nenhuma barbearia cadastrada!");
+          UtilMensagem.showErro(
+            context,
+            "Você ainda não possui nenhuma barbearia cadastrada!",
+          );
           return;
         }
         context.go(route);

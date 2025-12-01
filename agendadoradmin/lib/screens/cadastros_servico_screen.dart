@@ -7,7 +7,6 @@ import 'package:agendadoradmin/widgets/app_bar_padrao.dart';
 import 'package:agendadoradmin/widgets/button_bar_padrao.dart';
 import 'package:agendadoradmin/widgets/textfield_padrao.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
 class CadastroServicoScreen extends StatefulWidget {
@@ -81,7 +80,7 @@ class _CadastroServicoScreenState extends State<CadastroServicoScreen> {
 
         setState(() => _isLoading = false);
 
-        if (mounted) context.go('/servicos');
+        if (mounted) context.pop(true);
       } else {
         await servicoService.atualizarServico(servicoSalvar);
 
