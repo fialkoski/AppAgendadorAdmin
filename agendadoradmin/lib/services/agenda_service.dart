@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:agendadoradmin/models/agenda_item.dart';
 import 'package:agendadoradmin/models/cliente.dart';
 import 'package:agendadoradmin/models/erro_requisicao.dart';
-import 'package:agendadoradmin/models/servico.dart';
 import 'package:agendadoradmin/services/api_service.dart';
 import 'package:agendadoradmin/singleton/lista_empresa_singleton.dart';
 
@@ -113,6 +112,29 @@ class AgendaService {
       ErroRequisicao erro = ErroRequisicao.fromJson(jsonDecode(response.body));
       throw Exception(erro.mensagemFormatada().replaceFirst('Exception: ', ''));
     }
+  }
+
+  Future<String> bloquearAgendamento(int idProfissional, String data,
+      String hora) async {
+    String retorno = '';
+
+    final Map<String, dynamic> dados = {
+      "idEmpresa": ListaEmpresaSingleton.instance.empresa!.id,
+      "idProfissional": idProfissional,
+      "data": data,
+      "hora": hora
+    };
+
+    final response = await ApiService.post(
+        '/api/${ListaEmpresaSingleton.instance.empresa!.id}/agendamentos/bloquear', dados);
+    if (response.statusCode == 200) {
+      retorno = 'Horário bloqueado com sucesso.';
+    } else {
+      ErroRequisicao erro = ErroRequisicao.fromJson(jsonDecode(response.body));
+      throw Exception(erro.mensagemFormatada().replaceFirst('Exception: ', ''));
+    }
+
+    return retorno;
   }
 
 }

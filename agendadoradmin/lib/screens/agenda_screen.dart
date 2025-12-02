@@ -308,10 +308,27 @@ class _AgendaScreenState extends State<AgendaScreen> {
                             padding: const EdgeInsets.all(12.0),
                             child: Row(
                               children: [
-                                Text(
-                                  "${item.hora.substring(0, 5)}  ${item.nomeCliente == '' ? "Livre" : item.nomeCliente}",
-                                  style: TextStyle(fontSize: 20),
-                                ),
+                                if (item.tipo == 'bloqueio') ...[
+                                  Icon(
+                                    Icons.lock,
+                                    color: theme.colorScheme.onSurface
+                                        .withValues(alpha: 0.6),
+                                  ),
+                                  Text(
+                                    "${item.hora.substring(0, 5)}  Horário Bloqueado",
+                                    style: TextStyle(fontSize: 20),
+                                  ),
+                                ],
+                                if (item.tipo == 'agendamento')
+                                  Text(
+                                    "${item.hora.substring(0, 5)}  ${item.nomeCliente == '' ? "Livre" : item.nomeCliente}",
+                                    style: TextStyle(fontSize: 20),
+                                  ),
+                                if (item.tipo == 'livre')
+                                  Text(
+                                    "${item.hora.substring(0, 5)}  Livre",
+                                    style: TextStyle(fontSize: 20),
+                                  ),
                                 Spacer(),
                                 PopupMenuButton<String>(
                                   icon: Icon(
@@ -329,57 +346,84 @@ class _AgendaScreenState extends State<AgendaScreen> {
                                             servicos,
                                           );
 
-                                      if (resultado != null) {
+                                      if (resultado == true) {
+                                        carregarAgenda();
+                                      }
+                                    } else if (value == 'cancelar') {
+                                      final resultado =
+                                          await mostrarDialogCancelarHorario(
+                                            context,
+                                            item,
+                                            servicos,
+                                          );
+
+                                      if (resultado == true) {
+                                        carregarAgenda();
+                                      }
+                                    } else if (value == 'bloquear') {
+                                      final resultado =
+                                          await mostrarDialogBloquearHorario(
+                                            context,
+                                            item,
+                                            servicos,
+                                          );
+
+                                      if (resultado == true) {
                                         carregarAgenda();
                                       }
                                     }
                                   },
                                   itemBuilder: (context) => [
-                                    PopupMenuItem(
-                                      value: 'agendar',
-                                      child: Row(
-                                        children: [
-                                          Icon(
-                                            Icons.event_available,
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.primary,
-                                          ),
-                                          SizedBox(width: 8),
-                                          Text('Agendar'),
-                                        ],
+                                    if (item.tipo == "livre") ...[
+                                      PopupMenuItem(
+                                        value: 'agendar',
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              Icons.event_available,
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.primary,
+                                            ),
+                                            SizedBox(width: 8),
+                                            Text('Agendar'),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                    PopupMenuItem(
-                                      value: 'cancelar',
-                                      child: Row(
-                                        children: [
-                                          Icon(
-                                            Icons.close,
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.primary,
-                                          ),
-                                          SizedBox(width: 8),
-                                          Text('Cancelar'),
-                                        ],
+                                      PopupMenuItem(
+                                        value: 'bloquear',
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              Icons.lock,
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.primary,
+                                            ),
+                                            SizedBox(width: 8),
+                                            Text('Bloquear horário'),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                    PopupMenuItem(
-                                      value: 'bloquear',
-                                      child: Row(
-                                        children: [
-                                          Icon(
-                                            Icons.lock,
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.primary,
-                                          ),
-                                          SizedBox(width: 8),
-                                          Text('Bloaquear horário'),
-                                        ],
+                                    ],
+
+                                    if (item.tipo == "bloqueio" || item.tipo == "agendamento" ) ...[
+                                      PopupMenuItem(
+                                        value: 'cancelar',
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              Icons.close,
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.primary,
+                                            ),
+                                            SizedBox(width: 8),
+                                            Text('Cancelar'),
+                                          ],
+                                        ),
                                       ),
-                                    ),
+                                    ],
                                   ],
                                 ),
                               ],
@@ -445,8 +489,7 @@ class _AgendaScreenState extends State<AgendaScreen> {
                         Text(
                           'Serviço',
                           style: TextStyle(
-                            color: colorScheme.onSurface
-                                              .withValues(alpha: 0.7),
+                            color: colorScheme.onSurface.withValues(alpha: 0.7),
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -454,9 +497,7 @@ class _AgendaScreenState extends State<AgendaScreen> {
                           Center(
                             child: Text(
                               'Nenhum serviço disponível. Por favor, cadastre um serviço primeiro.',
-                              style: TextStyle(
-                                color: colorScheme.onSurface,
-                              ),
+                              style: TextStyle(color: colorScheme.onSurface),
                             ),
                           )
                         else if (servicoIdSelecionado > 0)
@@ -595,7 +636,8 @@ class _AgendaScreenState extends State<AgendaScreen> {
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             TextButton(
-                              onPressed: () => Navigator.pop(context),
+                              onPressed: () =>
+                                  Navigator.of(dialogContext).pop(false),
                               style: TextButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 28,
@@ -638,7 +680,7 @@ class _AgendaScreenState extends State<AgendaScreen> {
                                                     0,
                                                 item.data,
                                                 item.hora,
-                                                servicoIdSelecionado, 
+                                                servicoIdSelecionado,
                                                 cliente,
                                               )
                                               .then((resultado) {
@@ -683,6 +725,302 @@ class _AgendaScreenState extends State<AgendaScreen> {
                                     )
                                   : const Text(
                                       'Salvar',
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<bool?> mostrarDialogCancelarHorario(
+    BuildContext context,
+    AgendaItem item,
+    List<Servico> servicos,
+  ) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final formKey = GlobalKey<FormState>();
+    bool isLoading = false;
+    final profissional = profissionais[profissionalSelecionadoIndex!];
+
+    return showDialog<bool?>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext dialogContext) {
+        return StatefulBuilder(
+          builder: (BuildContext statefulContext, StateSetter setDialogState) {
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 900),
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Form(
+                    key: formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Título
+                        Text(
+                          "Cancelamento de agendamento ",
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: colorScheme.primary,
+                              ),
+                        ),
+                        const SizedBox(height: 20),
+                        Text(
+                          'Confirma o cancelamento do agendamento do ${item.nomeCliente} às ${item.hora.substring(0, 5)} com o ${profissional.nome} ?',
+                          style: TextStyle(
+                            color: colorScheme.onSurface.withValues(alpha: 0.7),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        // BOTÕES
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            TextButton(
+                              onPressed: () =>
+                                  Navigator.of(dialogContext).pop(false),
+                              style: TextButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 28,
+                                  vertical: 22,
+                                ),
+                                foregroundColor: colorScheme.onSurface
+                                    .withValues(alpha: 0.8),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                textStyle: Theme.of(context)
+                                    .textTheme
+                                    .labelLarge
+                                    ?.copyWith(fontWeight: FontWeight.w500),
+                              ),
+                              child: const Text('Voltar'),
+                            ),
+                            const SizedBox(width: 12),
+                            ElevatedButton(
+                              onPressed: isLoading
+                                  ? null
+                                  : () async {
+                                      setDialogState(() {
+                                        isLoading = true;
+                                      });
+                                      try {
+                                        try {
+                                          await agendaService
+                                              .cancelarAgendamento(
+                                                profissionais[profissionalSelecionadoIndex!]
+                                                        .id ??
+                                                    0,
+                                                item.data,
+                                                item.hora,
+                                              )
+                                              .then((resultado) {
+                                                if (!mounted) return;
+                                                Navigator.of(
+                                                  dialogContext,
+                                                ).pop(true);
+                                              });
+                                        } catch (e) {
+                                          if (!mounted) return;
+                                          UtilMensagem.showErro(
+                                            context,
+                                            "Falha ao realizar cancelamento: $e",
+                                          );
+                                        }
+                                      } finally {
+                                        setDialogState(() {
+                                          isLoading = false;
+                                        });
+                                      }
+                                    },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: colorScheme.primary,
+                                foregroundColor: colorScheme.onPrimary,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 28,
+                                  vertical: 22,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                elevation: 3,
+                              ),
+                              child: isLoading
+                                  ? SizedBox(
+                                      height: 18,
+                                      width: 18,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2.4,
+                                        color: colorScheme.onPrimary,
+                                      ),
+                                    )
+                                  : const Text(
+                                      'Cancelar Agendamento',
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<bool?> mostrarDialogBloquearHorario(
+    BuildContext context,
+    AgendaItem item,
+    List<Servico> servicos,
+  ) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final formKey = GlobalKey<FormState>();
+    bool isLoading = false;
+    final profissional = profissionais[profissionalSelecionadoIndex!];
+
+    return showDialog<bool?>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext dialogContext) {
+        return StatefulBuilder(
+          builder: (BuildContext statefulContext, StateSetter setDialogState) {
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 900),
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Form(
+                    key: formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Título
+                        Text(
+                          "Bloquear horário ",
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: colorScheme.primary,
+                              ),
+                        ),
+                        const SizedBox(height: 20),
+                        Text(
+                          'Confirma o bloqueio do horário das ${item.hora.substring(0, 5)} do ${profissional.nome} ?',
+                          style: TextStyle(
+                            color: colorScheme.onSurface.withValues(alpha: 0.7),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        // BOTÕES
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            TextButton(
+                              onPressed: () =>
+                                  Navigator.of(dialogContext).pop(false),
+                              style: TextButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 28,
+                                  vertical: 22,
+                                ),
+                                foregroundColor: colorScheme.onSurface
+                                    .withValues(alpha: 0.8),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                textStyle: Theme.of(context)
+                                    .textTheme
+                                    .labelLarge
+                                    ?.copyWith(fontWeight: FontWeight.w500),
+                              ),
+                              child: const Text('Voltar'),
+                            ),
+                            const SizedBox(width: 12),
+                            ElevatedButton(
+                              onPressed: isLoading
+                                  ? null
+                                  : () async {
+                                      setDialogState(() {
+                                        isLoading = true;
+                                      });
+                                      try {
+                                        try {
+                                          await agendaService
+                                              .bloquearAgendamento(
+                                                profissionais[profissionalSelecionadoIndex!]
+                                                        .id ??
+                                                    0,
+                                                item.data,
+                                                item.hora,
+                                              )
+                                              .then((resultado) {
+                                                if (!mounted) return;
+                                                Navigator.of(
+                                                  dialogContext,
+                                                ).pop(true);
+                                              });
+                                        } catch (e) {
+                                          if (!mounted) return;
+                                          UtilMensagem.showErro(
+                                            context,
+                                            "Falha ao realizar o bloqueio do horário: $e",
+                                          );
+                                        }
+                                      } finally {
+                                        setDialogState(() {
+                                          isLoading = false;
+                                        });
+                                      }
+                                    },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: colorScheme.primary,
+                                foregroundColor: colorScheme.onPrimary,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 28,
+                                  vertical: 22,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                elevation: 3,
+                              ),
+                              child: isLoading
+                                  ? SizedBox(
+                                      height: 18,
+                                      width: 18,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2.4,
+                                        color: colorScheme.onPrimary,
+                                      ),
+                                    )
+                                  : const Text(
+                                      'Bloquear horário',
                                       style: TextStyle(fontSize: 16),
                                     ),
                             ),
